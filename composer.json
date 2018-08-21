@@ -1,0 +1,36 @@
+{
+    "name": "grafite/missioncontrol-laravel",
+    "description": "The reporting package for Grafite Mission Control",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Matt Lantz",
+            "email": "matt@grafite.ca"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.4",
+        "mashape/unirest-php": "^3.0",
+        "kassner/log-parser": "^1.4",
+        "nesbot/carbon": "^1.32"
+    },
+    "require-dev": {
+        "mockery/mockery": "^0.9.4",
+        "orchestra/testbench": "^3.3"
+    },
+    "bin": [
+        "bin/atlas",
+        "bin/xray"
+    ],
+    "autoload": {
+        "psr-4": {
+            "Grafite\\MissionControl\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/TestCase.php"
+        ]
+    },
+    "minimum-stability": "stable"
+}
