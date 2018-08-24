@@ -14,7 +14,7 @@ class TestCase extends OrchestraTestCase
     protected function getPackageProviders($app)
     {
         return [
-            \Omnipulse\Reporter\OmnipulseReporterProvider::class,
+            \Grafite\MissionControlLaravel\GrafiteMissionControlLaravelProvider::class,
         ];
     }
 

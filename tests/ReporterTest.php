@@ -1,24 +1,39 @@
 <?php
 
-use Illuminate\Http\Request;
-use Omnipulse\Reporter\Services\Reporter;
+use Grafite\MissionControlLaravel\Issue;
 
-class ReporterTest extends TestCase
+class IssueTest extends TestCase
 {
     public function setUp()
     {
         parent::setUp();
-        $this->service = app(Reporter::class);
+
+        $this->service = app(Issue::class);
     }
 
-    public function testReporter()
+    public function testIssue()
     {
-        $request = app(Request::class);
-        $exception = new Exception('This is a test');
-        $test = $this->service->processException($request, $exception);
+        $response = app(Issue::class)->log('testing', 'info');
 
-        $this->assertEquals($test['report_server_software'], null);
-        $this->assertEquals($test['report_server_name'], 'localhost');
-        $this->assertEquals($test['exception_content'], 'This is a test');
+        $this->assertTrue($response);
+        // $exception = new Exception('This is a test');
+        // $test = $this->service->processException($request, $exception);
+
+        // $this->assertEquals($test['report_server_software'], null);
+        // $this->assertEquals($test['report_server_name'], 'localhost');
+        // $this->assertEquals($test['exception_content'], 'This is a test');
+    }
+
+    public function testException()
+    {
+        // $response = app(Issue::class)->exception('testing', 'info');
+
+        // $this->assertTrue($response);
+        // $exception = new Exception('This is a test');
+        // $test = $this->service->processException($request, $exception);
+
+        // $this->assertEquals($test['report_server_software'], null);
+        // $this->assertEquals($test['report_server_name'], 'localhost');
+        // $this->assertEquals($test['exception_content'], 'This is a test');
     }
 }

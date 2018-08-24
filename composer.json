@@ -1,6 +1,6 @@
 {
-    "name": "grafite/missioncontrol-laravel",
-    "description": "The reporting package for Grafite Mission Control",
+    "name": "grafite/mission-control-laravel",
+    "description": "The Laravel package for Mission Control (Grafite Inc)",
     "license": "MIT",
     "authors": [
         {
@@ -9,10 +9,8 @@
         }
     ],
     "require": {
-        "php": ">=5.6.4",
-        "mashape/unirest-php": "^3.0",
-        "kassner/log-parser": "^1.4",
-        "nesbot/carbon": "^1.32"
+        "php": ">=7.1",
+        "grafite/mission-control": "^1.0"
     },
     "require-dev": {
         "mockery/mockery": "^0.9.4",
@@ -24,12 +22,12 @@
     ],
     "autoload": {
         "psr-4": {
-            "Grafite\\MissionControl\\": "src/"
+            "Grafite\\MissionControlLaravel\\": "src/"
         }
     },
     "autoload-dev": {
         "classmap": [
-            "tests/TestCase.php"
+            "tests/"
         ]
     },
     "minimum-stability": "stable"
