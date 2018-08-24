@@ -1,0 +1,4 @@
+#!/usr/bin/env php
+<?php
+
+shell_exec('php '.__DIR__.'/../../artisan mission-control:report');

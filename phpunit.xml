@@ -8,10 +8,9 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         syntaxCheck="false"
 >
     <testsuites>
-        <testsuite name="LaraTest">
+        <testsuite name="MissionControlLaravel">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>

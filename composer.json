@@ -17,8 +17,7 @@
         "orchestra/testbench": "^3.3"
     },
     "bin": [
-        "bin/atlas",
-        "bin/xray"
+        "bin/report"
     ],
     "autoload": {
         "psr-4": {
