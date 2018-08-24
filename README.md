@@ -1,7 +1,7 @@
 # Mission Control Laravel Package
 
 [![Build Status](https://travis-ci.org/GrafiteInc/Mission-Control-Laravel-Package.svg?branch=master)](https://travis-ci.org/GrafiteInc/Mission-Control-Laravel-Package)
-[![Packagist](https://img.shields.io/packagist/dt/grafite/mission-control.svg)](https://packagist.org/packages/grafite/mission-control)
+[![Packagist](https://img.shields.io/packagist/dt/grafite/mission-control-laravel.svg)](https://packagist.org/packages/grafite/mission-control-larvael)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/grafite/mission-control-package)
 
 **Mission Control Laravel-Package** - Send data to Grafite's Mission Control system to stay in control of your applications.
