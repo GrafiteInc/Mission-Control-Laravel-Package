@@ -2,6 +2,7 @@
 
 namespace Grafite\MissionControlLaravel;
 
+use Grafite\MissionControlLaravel\Commands\Report;
 use Illuminate\Support\ServiceProvider;
 
 class GrafiteMissionControlLaravelProvider extends ServiceProvider
@@ -11,7 +12,9 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
      */
     public function register()
     {
-        // Nothing here yet....
+        $this->commands([
+            Report::class,
+        ]);
     }
 
     /**

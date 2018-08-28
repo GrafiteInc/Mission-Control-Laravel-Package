@@ -32,6 +32,6 @@ return [
      * with FORGE then you should be able to set your access.log
      * to the following: /etc/nginx/sites-available/{domain}
      */
-    'access_log_file_path' => env('MISSION_CONTROL_LOG', '/etc/nginx/sites-available/{domain}'),
+    'access_log_file_path' => env('MISSION_CONTROL_LOG', 'var/log/nginx/{domain}-access.log'),
 
 ];
