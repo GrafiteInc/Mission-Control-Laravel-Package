@@ -29,5 +29,12 @@
             "tests/"
         ]
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Grafite\\MissionControlLaravel\\GrafiteMissionControlLaravelProvider"
+            ]
+        }
+    },
     "minimum-stability": "stable"
 }
