@@ -80,6 +80,15 @@ If not simply add this to your `CRONTAB`:
 */5 * * * * php /{app-path}/artisan mission-control:report
 ```
 
+### PHPUnit Settings
+
+Your tests may begin to fail, if this happens just add these environment variables to your `phpunit.xml` files. You can also add them directly to your CI tool of choice.
+
+```
+<env name="MISSION_CONTROL_TOKEN" value="testing"/>
+<env name="MISSION_CONTROL_WEBHOOK" value="testing"/>
+```
+
 ## License
 Mission Control PHP Package is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
 
