@@ -18,6 +18,18 @@ Grafite's Mission Control is an elegant Application Performance Management syste
 composer require grafite/mission-control-laravel
 ```
 
+### Environment Variables
+
+You need to add these variables to your environment. These will be the format for apps deployed with Laravel FORGE.
+
+> Just remember you need to enable the logs on your server - see below for info
+
+```
+MISSION_CONTROL_TOKEN={project_token}
+MISSION_CONTROL_WEBHOOK={project_webhook}
+MISSION_CONTROL_LOG=/var/log/nginx/{project_domain}-access.log
+```
+
 ### Issues
 
 Issues lets you peak into your exceptions or any flagged messages you'd like to track. You can do so using the following methods:

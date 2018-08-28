@@ -30,8 +30,8 @@ return [
      * You need to set this the file location of your
      * project's access.log files. If you set up your server
      * with FORGE then you should be able to set your access.log
-     * to the following: /etc/nginx/sites-available/{domain}
+     * to the following: /var/log/nginx/{domain}-access.log
      */
-    'access_log_file_path' => env('MISSION_CONTROL_LOG', 'var/log/nginx/{domain}-access.log'),
+    'access_log_file_path' => env('MISSION_CONTROL_LOG', '/var/log/nginx/{domain}-access.log'),
 
 ];
