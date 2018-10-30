@@ -30,6 +30,12 @@ MISSION_CONTROL_WEBHOOK={project_webhook}
 MISSION_CONTROL_LOG=/var/log/nginx/{project_domain}-access.log
 ```
 
+### Publishing Configuration
+```php 
+php artisan vendor:publish --provider="Grafite\MissionControlLaravel\GrafiteMissionControlLaravelProvider"
+```
+
+
 ### Issues
 
 Issues lets you peak into your exceptions or any flagged messages you'd like to track. You can do so using the following methods:
