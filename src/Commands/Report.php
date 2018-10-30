@@ -5,6 +5,7 @@ namespace Grafite\MissionControlLaravel\Commands;
 use Grafite\MissionControl\PerformanceService;
 use Grafite\MissionControl\TrafficService;
 use Illuminate\Console\Command;
+use Exception;
 
 class Report extends Command
 {
