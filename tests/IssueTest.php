@@ -4,7 +4,7 @@ use Grafite\MissionControlLaravel\Issue;
 
 class IssueTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

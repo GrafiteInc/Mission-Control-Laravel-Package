@@ -1,6 +1,6 @@
 # Mission Control Laravel Package
 
-[![Build Status](https://travis-ci.org/GrafiteInc/Mission-Control-Laravel-Package.svg?branch=master)](https://travis-ci.org/GrafiteInc/Mission-Control-Laravel-Package)
+[![Build Status](https://github.com/GrafiteInc/Mission-Control-Package-Laravel/workflows/PHP%20Package%20Tests/badge.svg?branch=master)](https://github.com/GrafiteInc/Mission-Control-Package-Laravel/actions?query=workflow%3A%22PHP+Package+Tests%22)
 [![Packagist](https://img.shields.io/packagist/dt/grafite/mission-control-laravel.svg)](https://packagist.org/packages/grafite/mission-control-laravel)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/grafite/mission-control-laravel)
 
@@ -10,7 +10,7 @@ Grafite's Mission Control is an elegant Application Performance Management syste
 
 ## Requirements
 
-1. PHP 7.1+
+1. PHP 7.3+
 
 ### Composer
 
@@ -25,18 +25,18 @@ You need to add these variables to your environment. These will be the format fo
 > Just remember you need to enable the logs on your server - see below for info
 
 ```
-MISSION_CONTROL_TOKEN={project_token}
-MISSION_CONTROL_WEBHOOK={project_webhook}
-MISSION_CONTROL_LOG=/var/log/nginx/{project_domain}-access.log
+MISSION_CONTROL_USER_TOKEN={api_token}
+MISSION_CONTROL_PROJECT_KEY={project_key}
 ```
 
 ### Publishing Configuration
-```php 
+```php
 php artisan vendor:publish --provider="Grafite\MissionControlLaravel\GrafiteMissionControlLaravelProvider"
 ```
 
-
 ### Issues
+
+By default Mission Control will log all exceptions and logs from any environment you specify in the config. You can disable this by removing all environments. Otherwise you can log things manually.
 
 Issues lets you peak into your exceptions or any flagged messages you'd like to track. You can do so using the following methods:
 
@@ -55,31 +55,26 @@ Or if you just want to flag an potential issue or concern in your applicaiton:
 ```
 use Grafite\MissionControlLaravel\Issue;
 
-app(Issue::class)->log('Anything you want to say goes here', 'flag');
+app(Issue::class)->log('Anything you want to say goes here', 'tag');
 ```
 
-##### Flags
+##### Tags
 
-Flags can be any terminology you want, to help sort through your issues.
+Tags can be any terminology you want, to help sort through your issues.
 
-### Webhook
+### Notify
 
-You can easily tie the webhooks into your application with this package using class and method:
+You can easily give yourself tagged notifications for your applications throuh this handy service:
 
 ```
-use Grafite\MissionControlLaravel\Webhook;
+use Grafite\MissionControlLaravel\Notify;
 
-app(Webhook::class)->send('This is a title', 'This is a custom message', 'info');
+app(Notify::class)->send('This is a title', 'This is a custom message', 'info');
 ```
 
 ### Mission Control Report
 
-The Report CRON job for Mission Control lets you send back to Mission Control data about traffic and performance of your application. To set this up, simply turn on `access.log` files in your server set up, for developers using FORGE you can do this by running these commands replacing {domain} with your app's domain.
-
-```
-sudo su
-sed -i -e 's/access_log off;/access_log \/var\/log\/nginx\/{domain}-access.log;/g' /etc/nginx/sites-available/{domain}
-```
+The Report CRON job for Mission Control lets you send back to Mission Control data about the performance of your application.
 
 Then if you're using FORGE (default setup) you can add the following to the Scheduled Jobs:
 
@@ -103,8 +98,8 @@ If not simply add this to your `CRONTAB`:
 Your tests may begin to fail, if this happens just add these environment variables to your `phpunit.xml` files. You can also add them directly to your CI tool of choice.
 
 ```
-<env name="MISSION_CONTROL_TOKEN" value="testing"/>
-<env name="MISSION_CONTROL_WEBHOOK" value="testing"/>
+<env name="MISSION_CONTROL_USER_TOKEN" value="testing"/>
+<env name="MISSION_CONTROL_PROJECT_KEY" value="testing"/>
 ```
 
 ## License

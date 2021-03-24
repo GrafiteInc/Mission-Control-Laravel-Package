@@ -2,8 +2,10 @@
 
 namespace Grafite\MissionControlLaravel;
 
-use Grafite\MissionControlLaravel\Commands\Report;
+use Exception;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Log\Events\MessageLogged;
+use Grafite\MissionControlLaravel\Commands\Report;
 
 class GrafiteMissionControlLaravelProvider extends ServiceProvider
 {
@@ -23,7 +25,25 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config' => base_path('config'),
+            __DIR__ . '/../config/mission-control.php' => base_path('config/mission-control.php'),
         ]);
+
+        if (app()->environment(config('mission-control.environments', ['production']))) {
+            $this->app['log']->listen(function (MessageLogged $message) {
+                try {
+                    if (! empty($message->context['exception'])) {
+                        app(Issue::class)->exception($message->context['exception']);
+                    }
+
+                    if (empty($message->context['exception'])) {
+                        app(Issue::class)->log($message->message, $message->level);
+                    }
+                } catch (Exception $exception) {
+                    return;
+                }
+            });
+        }
+
+        return $this;
     }
 }
