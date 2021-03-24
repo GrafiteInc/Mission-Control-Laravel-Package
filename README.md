@@ -1,6 +1,6 @@
 # Mission Control Laravel Package
 
-[![Build Status](https://github.com/GrafiteInc/Mission-Control-Package-Laravel/workflows/PHP%20Package%20Tests/badge.svg?branch=master)](https://github.com/GrafiteInc/Mission-Control-Package-Laravel/actions?query=workflow%3A%22PHP+Package+Tests%22)
+[![Build Status](https://github.com/GrafiteInc/Mission-Control-Laravel-Package/workflows/PHP%20Package%20Tests/badge.svg?branch=master)](https://github.com/GrafiteInc/Mission-Control-Laravel-Package/actions?query=workflow%3A%22PHP+Package+Tests%22)
 [![Packagist](https://img.shields.io/packagist/dt/grafite/mission-control-laravel.svg)](https://packagist.org/packages/grafite/mission-control-laravel)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/grafite/mission-control-laravel)
 
