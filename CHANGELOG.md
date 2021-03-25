@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v2.0.0] - 2021-03-25
+
+### Changed
+- Upgraded to MissionControl 2.0
+
 ## [v1.0.4] - 2018-10-30
 
 ### Fixed
