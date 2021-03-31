@@ -28,7 +28,11 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             __DIR__ . '/../config/mission-control.php' => base_path('config/mission-control.php'),
         ]);
 
-        if (app()->environment(config('mission-control.environments', ['production']))) {
+        if (
+            app()->environment(config('mission-control.environments', ['production']))
+            && ! is_null(config('mission-control.api_token'))
+            && ! is_null(config('mission-control.api_key'))
+        ) {
             $this->app['log']->listen(function (MessageLogged $message) {
                 try {
                     if (! empty($message->context['exception'])) {
