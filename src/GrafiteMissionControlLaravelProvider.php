@@ -34,16 +34,23 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             && ! is_null(config('mission-control.api_key'))
         ) {
             $this->app['log']->listen(function (MessageLogged $message) {
-                try {
-                    if (! empty($message->context['exception'])) {
-                        app(Issue::class)->exception($message->context['exception']);
-                    }
+                if (in_array($message->level, config('mission-control.levels', [
+                    'emergency',
+                    'alert',
+                    'critical',
+                    'error',
+                ]))) {
+                    try {
+                        if (! empty($message->context['exception'])) {
+                            app(Issue::class)->exception($message->context['exception']);
+                        }
 
-                    if (empty($message->context['exception'])) {
-                        app(Issue::class)->log($message->message, $message->level);
+                        if (empty($message->context['exception'])) {
+                            app(Issue::class)->log($message->message, $message->level);
+                        }
+                    } catch (Exception $exception) {
+                        return;
                     }
-                } catch (Exception $exception) {
-                    return;
                 }
             });
         }

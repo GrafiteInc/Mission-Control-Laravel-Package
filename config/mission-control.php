@@ -1,12 +1,21 @@
 <?php
 
 return [
-
     /**
      * The environments you want to run Mission Control in.
      */
     'environments' => [
-        'production'
+        'production',
+    ],
+
+    /**
+     * The log levels you wish to send to Mission Control.
+     */
+    'levels' => [
+        'emergency',
+        'alert',
+        'critical',
+        'error'
     ],
 
     /**
@@ -22,5 +31,4 @@ return [
      * is manditory for all calls to Mission Control.
      */
     'api_key' => env('MISSION_CONTROL_PROJECT_KEY'),
-
 ];
