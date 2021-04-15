@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v2.1.1] - 2021-04-15
+
+### Fixed
+- Issue with null message or tag
+
 ## [v2.1.0] - 2021-04-15
 
 ### Added
