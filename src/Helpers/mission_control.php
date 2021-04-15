@@ -11,8 +11,8 @@ if (! function_exists('mission_control_issue')) {
 }
 
 if (! function_exists('mission_control_notify')) {
-    function mission_control_notify($title, $tag, $message)
+    function mission_control_notify($title, $tag, $message = null)
     {
-        return app(Notify::class)->send($title, $tag, $message);
+        return app(Notify::class)->send($title, $tag, $message = null);
     }
 }
