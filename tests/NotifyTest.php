@@ -17,7 +17,7 @@ class NotifyTest extends TestCase
 
     public function testNotify()
     {
-        $response = $this->service->send('test', 'testing', 'info');
+        $response = $this->service->send('test', 'info', 'testing');
 
         $this->assertTrue($response);
     }

@@ -69,7 +69,7 @@ You can easily give yourself tagged notifications for your applications throuh t
 ```
 use Grafite\MissionControlLaravel\Notify;
 
-app(Notify::class)->send('This is a title', 'This is a custom message', 'info');
+app(Notify::class)->send('This is a title', 'info', 'This is a custom message');
 ```
 
 ### Mission Control Report

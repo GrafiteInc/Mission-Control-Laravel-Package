@@ -14,8 +14,8 @@ class Notify
         );
     }
 
-    public function send($title, $message, $tag)
+    public function send($title, $tag, $message)
     {
-        return $this->notifyService->send($title, $message, $tag);
+        return $this->notifyService->send($title, $tag, $message);
     }
 }

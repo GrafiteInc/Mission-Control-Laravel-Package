@@ -23,7 +23,10 @@
     "autoload": {
         "psr-4": {
             "Grafite\\MissionControlLaravel\\": "src/"
-        }
+        },
+        "files": [
+          "src/Helpers/mission_control.php"
+        ]
     },
     "autoload-dev": {
         "classmap": [
