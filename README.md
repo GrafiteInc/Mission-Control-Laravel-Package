@@ -27,12 +27,22 @@ You need to add these variables to your environment. These will be the format fo
 ```
 MISSION_CONTROL_USER_TOKEN={api_token}
 MISSION_CONTROL_PROJECT_KEY={project_key}
+MISSION_CONTROL_PROJECT_UUID={project_uuid} // required for JS error reporting
 ```
 
 ### Publishing Configuration
 ```php
 php artisan vendor:publish --provider="Grafite\MissionControlLaravel\GrafiteMissionControlLaravelProvider"
 ```
+
+## Blade Directives
+You may wish to tap into the JavaScript error reporting feature. If so you need to do simply add the following to your header:
+
+```
+@missionControl
+```
+
+It will inject a JS error trace with an window listener for errors.
 
 ### Issues
 
