@@ -4,6 +4,7 @@ namespace Grafite\MissionControlLaravel;
 
 use Exception;
 use MatthiasMullie\Minify\JS;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Log\Events\MessageLogged;
 use Grafite\MissionControlLaravel\Commands\Report;
@@ -64,6 +65,9 @@ EOL;
             && ! is_null(config('mission-control.api_token'))
             && ! is_null(config('mission-control.api_key'))
         ) {
+            /**
+             * General app error logging
+             */
             $this->app['log']->listen(function (MessageLogged $message) {
                 if (in_array($message->level, config('mission-control.levels', [
                     'emergency',
@@ -82,6 +86,29 @@ EOL;
                     } catch (Exception $exception) {
                         return;
                     }
+                }
+            });
+
+            /**
+             * Handle the database query logging.
+             */
+            $standardQueryTime = config('mission-control.query_threshold', 5);
+
+            DB::listen(function ($sql) use ($standardQueryTime) {
+                if ($sql->time >= ($standardQueryTime * 1000)) {
+                    $statement = collect(explode(' ', $sql->sql))->map(function ($string) use ($sql) {
+                        if ($string === '?') {
+                            $i = 0;
+                            $string = $sql->bindings[$i];
+                            $i++;
+                        }
+
+                        return $string;
+                    })->implode(' ');
+
+                    $message = "The following statement ({$sql->time} milliseconds) exceeded the standard query time (${standardQueryTime} seconds): <br><br><span class=\"text-info\">${statement}</span>";
+
+                    app(Issue::class)->log($message, 'warning');
                 }
             });
         }

@@ -9,6 +9,11 @@ return [
     ],
 
     /**
+     * The duration of seconds at which a DB query takes too long.
+     */
+    'query_threshold' => 5,
+
+    /**
      * The log levels you wish to send to Mission Control.
      */
     'levels' => [
