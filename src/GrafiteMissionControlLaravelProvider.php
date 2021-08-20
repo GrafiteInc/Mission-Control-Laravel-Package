@@ -96,9 +96,10 @@ EOL;
 
             DB::listen(function ($sql) use ($standardQueryTime) {
                 if ($sql->time >= ($standardQueryTime * 1000)) {
-                    $statement = collect(explode(' ', $sql->sql))->map(function ($string) use ($sql) {
+                    $i = 0;
+
+                    $statement = collect(explode(' ', $sql->sql))->map(function ($string) use ($sql, &$i) {
                         if ($string === '?') {
-                            $i = 0;
                             $string = $sql->bindings[$i];
                             $i++;
                         }
