@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.0.0] - 2023-04-02
+
+### Added
+- Security tracking tools
+
+### Fixed
+- Test fails
+
 ## [v2.4.0] - 2023-03-04
 
 ### Added
