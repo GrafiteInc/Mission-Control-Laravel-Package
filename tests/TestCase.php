@@ -29,7 +29,6 @@ class TestCase extends OrchestraTestCase
         parent::setUp();
 
         $this->withoutMiddleware();
-        $this->withoutEvents();
 
         Config::set('mission-control.api_token', 'testing');
         Config::set('mission-control.api_key', 'testing');

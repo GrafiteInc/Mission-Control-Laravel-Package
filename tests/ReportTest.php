@@ -8,12 +8,12 @@ class ReportTest extends TestCase
     {
         parent::setUp();
 
-        $mockCurl = new MockRequest();
+        Http::fake();
 
         $this->command = app(Report::class);
 
-        $this->command->performanceService->setCurl($mockCurl);
-        $this->command->performanceService->issueService->setCurl($mockCurl);
+        // $this->command->performanceService->setCurl($mockCurl);
+        // $this->command->performanceService->issueService->setCurl($mockCurl);
     }
 
     public function testReport()

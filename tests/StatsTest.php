@@ -10,11 +10,9 @@ class StatsTest extends TestCase
     {
         parent::setUp();
 
-        $mockCurl = new MockRequest();
+        Http::fake();
 
         $this->service = app(Stats::class);
-
-        $this->service->statsService->setCurl($mockCurl);
     }
 
     public function testStats()

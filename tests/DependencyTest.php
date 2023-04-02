@@ -10,11 +10,9 @@ class DependencyTest extends TestCase
     {
         parent::setUp();
 
-        $mockCurl = new MockRequest();
+        Http::fake();
 
         $this->service = app(Dependencies::class);
-
-        $this->service->dependencyService->setCurl($mockCurl);
     }
 
     public function testDependency()

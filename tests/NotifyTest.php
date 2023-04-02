@@ -8,11 +8,9 @@ class NotifyTest extends TestCase
     {
         parent::setUp();
 
-        $mockCurl = new MockRequest();
+        Http::fake();
 
         $this->service = app(Notify::class);
-
-        $this->service->notifyService->setCurl($mockCurl);
     }
 
     public function testNotify()

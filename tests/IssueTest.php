@@ -8,11 +8,9 @@ class IssueTest extends TestCase
     {
         parent::setUp();
 
-        $mockCurl = new MockRequest();
+        Http::fake();
 
         $this->service = app(Issue::class);
-
-        $this->service->issueService->setCurl($mockCurl);
     }
 
     public function testIssue()
