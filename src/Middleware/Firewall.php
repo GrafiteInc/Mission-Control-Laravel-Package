@@ -56,14 +56,14 @@ class Firewall
         }
 
         if (isset($threat) && session('mission-control.bad-actor')) {
-            event(new AttackDetected($threat));
+            event(new AttackDetected(array_merge($threat, ['ip' => $ipAddress])));
         }
 
         if (! isset($threat) && session('mission-control.bad-actor')) {
-            event(new AttackDetected([
+            event(new AttackDetected(array_merge([
                 'type' => 'Banned Actor',
                 'data' => $request->input()
-            ]));
+            ], ['ip' => $ipAddress])));
         }
 
         return $next($request);
