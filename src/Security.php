@@ -41,7 +41,7 @@ class Security
         $attackTypes = [
             'xss' => [
                 // Evil starting attributes
-                '#(<[^>]+[\x00-\x20\"\'\/])(form|formaction|on\w*|style|xmlns|xlink:href)[^>]*>?#iUu',
+                '#(<[^>]+[\x00-\x20\"\'\/])(form|formaction|on\w*|xmlns|xlink:href)[^>]*>?#iUu',
                 // javascript:, livescript:, vbscript:, mocha: protocols
                 '!((java|live|vb)script|mocha|feed|data):(\w)*!iUu',
                 '#-moz-binding[\x00-\x20]*:#u',
@@ -66,10 +66,10 @@ class Security
             'rfi' => [
                 '#(http|ftp){1,1}(s){0,1}://.*#i',
             ],
-            'sqli' => [
-                '#[\d\W](union select|union join|union distinct)[\d\W]#is',
-                '#[\d\W](union|union select|insert|from|where|concat|into|cast|truncate|select|delete|having)[\d\W]#is',
-            ]
+            // 'sqli' => [
+            //     '#[\d\W](union select|union join|union distinct)[\d\W]#is',
+            //     '#[\d\W](union|union select|insert|from|where|concat|into|cast|truncate|select|delete|having)[\d\W]#is',
+            // ]
         ];
 
         $log = null;
@@ -93,7 +93,7 @@ class Security
     {
         $result = false;
 
-        if (! is_array($input) && !is_string($input)) {
+        if (! is_array($input) && ! is_string($input)) {
             return false;
         }
 

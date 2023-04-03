@@ -27,6 +27,11 @@ class Firewall
                 if ($session->get('mission-control.ip') !== $ipAddress) {
                     $session->forget('mission-control');
                 }
+
+                // is a malcious action
+                if ($threat = $service->isMalicious($request)) {
+                    $session->put('mission-control.bad-actor', true);
+                }
             }
 
             if (! $session->get('mission-control.validated-actor')) {
@@ -61,7 +66,7 @@ class Firewall
                 $session->put('mission-control.validated-actor', true);
             }
 
-            if (isset($threat) && $session->get('mission-control.bad-actor')) {
+            if (isset($threat) && is_array($threat) && $session->get('mission-control.bad-actor')) {
                 event(new AttackDetected(array_merge($threat, ['ip' => $ipAddress])));
             }
 

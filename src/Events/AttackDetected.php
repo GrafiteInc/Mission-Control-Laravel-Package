@@ -5,9 +5,8 @@ namespace Grafite\MissionControlLaravel\Events;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Foundation\Events\Dispatchable;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class AttackDetected implements ShouldBroadcast
+class AttackDetected
 {
     use Dispatchable;
     use SerializesModels;
