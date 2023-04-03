@@ -21,29 +21,32 @@ class Firewall
             $session = session();
             $ipAddress = $request->ip();
             $service = app(Security::class);
-            $session->put('mission-control.ip', $ipAddress);
 
-            if (! session('mission-control.bad-actor')) {
+            if ($session->get('mission-control.validated-actor')) {
+                // If their IP has changed.
+                if ($session->get('mission-control.ip') !== $ipAddress) {
+                    $session->forget('mission-control');
+                }
+            }
+
+            if (! $session->get('mission-control.validated-actor')) {
+                $session->put('mission-control.ip', $ipAddress);
+
                 [$ip, $geo] = $service->lookup($ipAddress);
 
-                // If their IP has changed.
-                if (session('mission-control.ip') !== $ipAddress) {
-                    $session->forget('mission-control.valid-ip');
-                }
-
-                if (! session('mission-control.valid-ip') && $ip) {
+                if (! $session->get('mission-control.valid-ip') && $ip) {
                     // ip is whitelisted, or they are not in the blacklist
                     $session->put('mission-control.valid-ip', true);
                 }
 
-                if (! session('mission-control.valid-geo') && $geo) {
+                if (! $session->get('mission-control.valid-geo') && $geo) {
                     // geo is good (not in a blocked country)
                     $session->put('mission-control.valid-geo', true);
                 }
 
                 // If any checks fail then set as bad actor.
                 foreach (['geo', 'ip'] as $check) {
-                    if (! session("mission-control.valid-{$check}")) {
+                    if (! $session->get("mission-control.valid-{$check}")) {
                         $threat = $service->recordThreat("invalid-{$check}", $request->input());
                         $session->put('mission-control.bad-actor', true);
                     }
@@ -54,13 +57,15 @@ class Firewall
                     $threat = $malicious;
                     $session->put('mission-control.bad-actor', true);
                 }
+
+                $session->put('mission-control.validated-actor', true);
             }
 
-            if (isset($threat) && session('mission-control.bad-actor')) {
+            if (isset($threat) && $session->get('mission-control.bad-actor')) {
                 event(new AttackDetected(array_merge($threat, ['ip' => $ipAddress])));
             }
 
-            if (! isset($threat) && session('mission-control.bad-actor')) {
+            if (! isset($threat) && $session->get('mission-control.bad-actor')) {
                 event(new AttackDetected(array_merge([
                     'type' => 'Banned Actor',
                     'data' => $request->input()
