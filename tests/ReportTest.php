@@ -20,6 +20,6 @@ class ReportTest extends TestCase
     {
         $response = $this->command->handle();
 
-        $this->assertTrue($response);
+        $this->assertEquals(0, $response);
     }
 }
