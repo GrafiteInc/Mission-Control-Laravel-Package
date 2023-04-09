@@ -43,7 +43,7 @@ class SSHLogger extends Command
         fi
         EOL;
 
-        file_put_contents('/home/forge/.bashrc', $snippet, FILE_APPEND);
+        file_put_contents('.bashrc', $snippet, FILE_APPEND);
 
         return 0;
     }
