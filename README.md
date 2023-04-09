@@ -1,6 +1,6 @@
 # Mission Control Laravel Package
 
-[![Build Status](https://github.com/GrafiteInc/Mission-Control-Laravel-Package/workflows/PHP%20Package%20Tests/badge.svg?branch=master)](https://github.com/GrafiteInc/Mission-Control-Laravel-Package/actions?query=workflow%3A%22PHP+Package+Tests%22)
+[![Build Status](https://github.com/GrafiteInc/Mission-Control-Laravel-Package/workflows/PHP%20Package%20Tests/badge.svg?branch=main)](https://github.com/GrafiteInc/Mission-Control-Laravel-Package/actions?query=workflow%3A%22PHP+Package+Tests%22)
 [![Packagist](https://img.shields.io/packagist/dt/grafite/mission-control-laravel.svg)](https://packagist.org/packages/grafite/mission-control-laravel)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg)](https://packagist.org/packages/grafite/mission-control-laravel)
 
@@ -101,6 +101,22 @@ If not simply add this to your `CRONTAB`:
 
 ```
 */5 * * * * php /{app-path}/artisan mission-control:report
+```
+
+## For Security Measures
+
+```
+COMMAND: php /home/forge/{domain}/artisan mission-control:virus-scan
+USER: forge
+FREQUENCY: Custom
+CUSTOM SCHEDULE: 0 1 * * *
+```
+
+### Install ClamAV
+```
+sudo apt-get install clamav clamav-daemon mailutils -y
+sudo service clamav-freshclam stop
+sudo freshclam
 ```
 
 ### PHPUnit Settings
