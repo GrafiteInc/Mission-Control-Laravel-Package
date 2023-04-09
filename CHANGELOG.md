@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.1.0] - 2023-04-09
+
+### Added
+- New SIEM tools
+
+### Fixed
+- Minor code issues
+
 ## [v3.0.4] - 2023-04-03
 
 ### Fixed
