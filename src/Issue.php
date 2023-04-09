@@ -6,6 +6,8 @@ use Grafite\MissionControl\IssueService;
 
 class Issue
 {
+    public $issueService;
+
     public function __construct()
     {
         $this->issueService = new IssueService(

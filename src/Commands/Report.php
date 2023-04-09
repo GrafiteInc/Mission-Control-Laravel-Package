@@ -47,6 +47,6 @@ class Report extends Command
     {
         $this->performanceService->sendPerformance();
 
-        return true;
+        return 0;
     }
 }

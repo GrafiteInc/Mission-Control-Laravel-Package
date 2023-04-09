@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Log\Events\MessageLogged;
 use Grafite\MissionControlLaravel\Commands\Report;
+use Grafite\MissionControlLaravel\Commands\SSHLogger;
+use Grafite\MissionControlLaravel\Commands\VirusScan;
 
 class GrafiteMissionControlLaravelProvider extends ServiceProvider
 {
@@ -18,6 +20,8 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
     {
         $this->commands([
             Report::class,
+            SSHLogger::class,
+            VirusScan::class,
         ]);
     }
 

@@ -6,6 +6,8 @@ use Grafite\MissionControl\NotifyService;
 
 class Notify
 {
+    public $notifyService;
+
     public function __construct()
     {
         $this->notifyService = new NotifyService(
