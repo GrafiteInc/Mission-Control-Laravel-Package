@@ -28,7 +28,8 @@ class VirusScan extends Command
      */
     public function handle()
     {
-        $result = Process::timeout(600)
+        // timeout to 45 min
+        $result = Process::timeout(2700)
             ->run('clamscan --infected --detect-pua=yes --recursive --remove '.base_path());
 
         mission_control_notify('Virus Scan', 'security:virus', $result->output());
