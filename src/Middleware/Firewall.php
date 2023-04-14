@@ -21,6 +21,7 @@ class Firewall
             $session = session();
             $ipAddress = $request->ip();
             $service = app(Security::class);
+            $threat = null;
 
             if ($session->get('mission-control.validated-actor')) {
                 // If their IP has changed.
@@ -66,11 +67,11 @@ class Firewall
                 $session->put('mission-control.validated-actor', true);
             }
 
-            if (isset($threat) && is_array($threat) && $session->get('mission-control.bad-actor')) {
+            if (! is_null($threat) && is_array($threat) && $session->get('mission-control.bad-actor')) {
                 event(new AttackDetected(array_merge($threat, ['ip' => $ipAddress])));
             }
 
-            if (! isset($threat) && $session->get('mission-control.bad-actor')) {
+            if (! is_null($threat) && ! is_array($threat) && $session->get('mission-control.bad-actor')) {
                 event(new AttackDetected(array_merge([
                     'type' => 'Banned Actor',
                     'data' => $request->input()

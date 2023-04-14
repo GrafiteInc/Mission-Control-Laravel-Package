@@ -37,7 +37,7 @@ class SSHLogger extends Command
             --header 'Content-Type: application/json' \
             --data-raw '{
                 "title": "SSH Access",
-                "content": "CI tooling or Manual Access for maintenance.",
+                "content": "CI tooling or Manual Access for maintenance via: '"\$SSH_CLIENT"'",
                 "tag": "security:ssh"
             }'
         fi
