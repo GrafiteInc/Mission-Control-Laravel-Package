@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.2.0] - 2023-05-31
+
+### Added
+- CSP support
+- Customizable threat monitoring
+
 ## [v3.1.3] - 2023-04-14
 
 ### Fixed
