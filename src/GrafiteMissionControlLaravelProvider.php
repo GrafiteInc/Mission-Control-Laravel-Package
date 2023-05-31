@@ -34,7 +34,9 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             __DIR__ . '/../config/mission-control.php' => base_path('config/mission-control.php'),
         ]);
 
-        $this->app['blade.compiler']->directive('missionControl', function () {
+        $this->app['blade.compiler']->directive('missionControl', function ($nonce) {
+            $nonce = $nonce ? ' nonce="' . $nonce . '"' : '';
+
             $url = config('mission-control.url');
             $uuid = config('mission-control.api_uuid');
             $key = config('mission-control.api_key');
@@ -58,7 +60,7 @@ EOL;
             $minifierJS = new JS();
 
             if (app()->environment(config('mission-control.environments', ['production']))) {
-                return '<script>' . $minifierJS->add($script)->minify() . '</script>';
+                return '<script '.$nonce.'>' . $minifierJS->add($script)->minify() . '</script>';
             }
 
             return '';

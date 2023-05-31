@@ -66,13 +66,9 @@ class Security
             'rfi' => [
                 '#(http|ftp){1,1}(s){0,1}://.*#i',
             ],
-            // 'sqli' => [
-            //     '#[\d\W](union select|union join|union distinct)[\d\W]#is',
-            //     '#[\d\W](union|union select|insert|from|where|concat|into|cast|truncate|select|delete|having)[\d\W]#is',
-            // ]
         ];
 
-        $log = null;
+        $attackTypes = config('mission-control.attacks', $attackTypes);
 
         foreach ($attackTypes as $name => $patterns) {
             foreach ($patterns as $pattern) {
