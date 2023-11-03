@@ -38,33 +38,37 @@ class Firewall
             if (! $session->get('mission-control.validated-actor')) {
                 $session->put('mission-control.ip', $ipAddress);
 
-                [$ip, $geo] = $service->lookup($ipAddress);
+                try {
+                    [$ip, $geo] = $service->lookup($ipAddress);
 
-                if (! $session->get('mission-control.valid-ip') && $ip) {
-                    // ip is whitelisted, or they are not in the blacklist
-                    $session->put('mission-control.valid-ip', true);
-                }
+                    if (! $session->get('mission-control.valid-ip') && $ip) {
+                        // ip is whitelisted, or they are not in the blacklist
+                        $session->put('mission-control.valid-ip', true);
+                    }
 
-                if (! $session->get('mission-control.valid-geo') && $geo) {
-                    // geo is good (not in a blocked country)
-                    $session->put('mission-control.valid-geo', true);
-                }
+                    if (! $session->get('mission-control.valid-geo') && $geo) {
+                        // geo is good (not in a blocked country)
+                        $session->put('mission-control.valid-geo', true);
+                    }
 
-                // If any checks fail then set as bad actor.
-                foreach (['geo', 'ip'] as $check) {
-                    if (! $session->get("mission-control.valid-{$check}")) {
-                        $threat = $service->recordThreat("invalid-{$check}", $request->input());
+                    // If any checks fail then set as bad actor.
+                    foreach (['geo', 'ip'] as $check) {
+                        if (! $session->get("mission-control.valid-{$check}")) {
+                            $threat = $service->recordThreat("invalid-{$check}", $request->input());
+                            $session->put('mission-control.bad-actor', true);
+                        }
+                    }
+
+                    // is a malcious action
+                    if ($malicious = $service->isMalicious($request)) {
+                        $threat = $malicious;
                         $session->put('mission-control.bad-actor', true);
                     }
-                }
 
-                // is a malcious action
-                if ($malicious = $service->isMalicious($request)) {
-                    $threat = $malicious;
-                    $session->put('mission-control.bad-actor', true);
+                    $session->put('mission-control.validated-actor', true);
+                } catch (\Throwable $th) {
+                    logger('Firewall: '.$th->getMessage());
                 }
-
-                $session->put('mission-control.validated-actor', true);
             }
 
             if (! is_null($threat) && is_array($threat) && $session->get('mission-control.bad-actor')) {
