@@ -14,6 +14,11 @@ return [
     'query_threshold' => 5,
 
     /**
+     * The duration of seconds at which a page load takes too long.
+     */
+    'page_load_threshold' => 2.0,
+
+    /**
      * The log levels you wish to send to Mission Control.
      */
     'levels' => [

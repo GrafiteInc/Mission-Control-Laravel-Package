@@ -40,8 +40,9 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             $url = config('mission-control.url');
             $uuid = config('mission-control.api_uuid');
             $key = config('mission-control.api_key');
+            $standardPageLoadTime = config('mission-control.page_load_threshold', 2.5);
 
-            $script = <<<EOL
+            $script = <<<JS
 window.addEventListener('error', function (event) {
     const xhttp = new XMLHttpRequest();
     xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
@@ -55,7 +56,25 @@ window.addEventListener('error', function (event) {
 
     return false;
 });
-EOL;
+
+window.addEventListener('load', () => {
+    const pageEnd = window.performance.mark('pageEnd');
+    const loadTime = pageEnd.startTime / 1000;
+    const page = window.location.href;
+
+    if (loadTime > ${standardPageLoadTime}) {
+        const xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
+        xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        xhttp.send(JSON.stringify({
+            source: 'JavaScript',
+            message: `\${page} load time (\${loadTime} seconds) exceeded the standard page load time of (${standardPageLoadTime} seconds)`,
+            stack: null,
+            tag: "warning"
+        }));
+    }
+});
+JS;
 
             $minifierJS = new JS();
 
