@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.3.0] - 2023-11-17
+
+### Added
+- New page load time warning
+
 ## [v3.2.1] - 2023-11-03
 
 ### Changed
