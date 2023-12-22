@@ -33,7 +33,7 @@ class SSHLogger extends Command
 
         $snippet = <<<EOL
         if [[ -n \$SSH_CONNECTION ]] ; then
-            curl --location --request POST '{$url}/api/webhook/{$uuid}/notify?key={$key}' \
+            curl --silent --output /dev/null --location --request POST '{$url}/api/webhook/{$uuid}/notify?key={$key}' \
             --header 'Content-Type: application/json' \
             --data-raw '{
                 "title": "SSH Access",
