@@ -59,7 +59,7 @@ window.addEventListener('error', function (event) {
 
 window.addEventListener('load', () => {
     const pageEnd = window.performance.mark('pageEnd');
-    const loadTime = pageEnd.startTime / 1000;
+    const loadTime = Number.parseFloat(pageEnd.startTime / 1000).toFixed(2);
     const page = window.location.href;
 
     if (loadTime > ${standardPageLoadTime}) {
