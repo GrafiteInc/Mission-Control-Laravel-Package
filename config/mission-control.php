@@ -19,6 +19,11 @@ return [
     'page_load_threshold' => 2.0,
 
     /**
+     * Log JavaScript errors to Mission Control.
+     */
+    'log_javascript_errors' => false,
+
+    /**
      * The log levels you wish to send to Mission Control.
      */
     'levels' => [

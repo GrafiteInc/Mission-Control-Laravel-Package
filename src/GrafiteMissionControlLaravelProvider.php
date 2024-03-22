@@ -41,21 +41,24 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             $uuid = config('mission-control.api_uuid');
             $key = config('mission-control.api_key');
             $standardPageLoadTime = config('mission-control.page_load_threshold', 2.5);
+            $logJSErrors = config('mission-control.log_javascript_errors', false);
 
             $script = <<<JS
-window.addEventListener('error', function (event) {
-    const xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
-    xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    xhttp.send(JSON.stringify({
-        source: 'JavaScript',
-        message: `\${event.message}: on line \${event.lineno} at column \${event.colno} within \${event.filename}`,
-        stack: event.error.stack,
-        tag: "error"
-    }));
+if (${logJSErrors}) {
+    window.addEventListener('error', function (event) {
+        const xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
+        xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        xhttp.send(JSON.stringify({
+            source: 'JavaScript',
+            message: `\${event.message}: on line \${event.lineno} at column \${event.colno} within \${event.filename}`,
+            stack: event.error.stack,
+            tag: "error"
+        }));
 
-    return false;
-});
+        return false;
+    });
+}
 
 window.addEventListener('load', () => {
     const pageEnd = window.performance.mark('pageEnd');
@@ -78,8 +81,11 @@ JS;
 
             $minifierJS = new JS();
 
-            if (app()->environment(config('mission-control.environments', ['production']))) {
-                return '<script '.$nonce.'>' . $minifierJS->add($script)->minify() . '</script>';
+            if (app()->environment(config('mission-control.environments', ['production']))
+                && ! is_null(config('mission-control.api_token'))
+                && ! is_null(config('mission-control.api_key'))
+            ) {
+                return "<!-- MISSION CONTROL -->\n<script {$nonce}>" . $minifierJS->add($script)->minify() . '</script>';
             }
 
             return '';
