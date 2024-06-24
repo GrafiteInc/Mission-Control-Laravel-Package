@@ -44,38 +44,48 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             $logJSErrors = config('mission-control.log_javascript_errors', false);
             $logTraffic = config('mission-control.log_traffic', true);
 
+            $logJSErrorsScript = '';
+            $logTrafficScript = '';
+
+            if ($logTraffic) {
+                $logTrafficScript = <<<JS
+window.addEventListener('load', () => {
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "${url}/api/webhook/${uuid}/traffic?key=${key}", true);
+    xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    xhttp.send(JSON.stringify({
+        "referrer": document.referrer,
+        "pathname": window.location.pathname,
+        "hash": window.location.hash,
+        "search": window.location.search,
+    }));
+
+    return false;
+});
+JS;
+            }
+
+            if ($logJSErrors) {
+                $logJSErrorsScript = <<<JS
+window.addEventListener('error', function (event) {
+    const xhttp = new XMLHttpRequest();
+    xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
+    xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+    xhttp.send(JSON.stringify({
+        source: 'JavaScript',
+        message: `\${event.message}: on line \${event.lineno} at column \${event.colno} within \${event.filename}`,
+        stack: event.error.stack,
+        tag: "error"
+    }));
+
+    return false;
+});
+JS;
+            }
+
             $script = <<<JS
-if (${logTraffic}) {
-    window.addEventListener('load', () => {
-        const xhttp = new XMLHttpRequest();
-        xhttp.open("POST", "${url}/api/webhook/${uuid}/traffic?key=${key}", true);
-        xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-        xhttp.send(JSON.stringify({
-            "referrer": document.referrer,
-            "pathname": window.location.pathname,
-            "hash": window.location.hash,
-            "search": window.location.search,
-        }));
-
-        return false;
-    });
-}
-
-if (${logJSErrors}) {
-    window.addEventListener('error', function (event) {
-        const xhttp = new XMLHttpRequest();
-        xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
-        xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-        xhttp.send(JSON.stringify({
-            source: 'JavaScript',
-            message: `\${event.message}: on line \${event.lineno} at column \${event.colno} within \${event.filename}`,
-            stack: event.error.stack,
-            tag: "error"
-        }));
-
-        return false;
-    });
-}
+${logTrafficScript}
+${logJSErrorsScript}
 
 window.addEventListener('load', () => {
     const pageEnd = window.performance.mark('pageEnd');
