@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.5.0] - 2024-06-24
+
+### Added
+- New traffic monitoring
+
 ## [v3.4.0] - 2024-03-12
 
 ### Added
