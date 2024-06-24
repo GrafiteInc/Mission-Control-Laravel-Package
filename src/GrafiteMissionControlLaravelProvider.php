@@ -42,8 +42,25 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             $key = config('mission-control.api_key');
             $standardPageLoadTime = config('mission-control.page_load_threshold', 2.5);
             $logJSErrors = config('mission-control.log_javascript_errors', false);
+            $logTraffic = config('mission-control.log_traffic', true);
 
             $script = <<<JS
+if (${logTraffic}) {
+    window.addEventListener('load', () => {
+        const xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "${url}/api/webhook/${uuid}/traffic?key=${key}", true);
+        xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+        xhttp.send(JSON.stringify({
+            "referrer": document.referrer,
+            "pathname": window.location.pathname,
+            "hash": window.location.hash,
+            "search": window.location.search,
+        }));
+
+        return false;
+    });
+}
+
 if (${logJSErrors}) {
     window.addEventListener('error', function (event) {
         const xhttp = new XMLHttpRequest();

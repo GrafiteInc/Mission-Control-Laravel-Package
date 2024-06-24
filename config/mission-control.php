@@ -24,6 +24,11 @@ return [
     'log_javascript_errors' => false,
 
     /**
+     * Log web traffic to Mission Control.
+     */
+    'log_traffic' => true,
+
+    /**
      * The log levels you wish to send to Mission Control.
      */
     'levels' => [
