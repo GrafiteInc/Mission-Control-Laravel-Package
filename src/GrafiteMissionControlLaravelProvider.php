@@ -90,7 +90,7 @@ ${logJSErrorsScript}
 window.addEventListener('load', () => {
 	const observer = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
-            const loadTime = entry.domContentLoadedEventEnd;
+            const loadTime = Number.parseFloat(entry.domContentLoadedEventEnd / 1000).toFixed(2);
             const page = window.location.href;
 
             if (loadTime > ${standardPageLoadTime}) {
