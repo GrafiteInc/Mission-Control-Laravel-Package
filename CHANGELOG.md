@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.5.3] - 2024-07-09
+
+### Fixed
+- Minor issue with ms vs s
+
 ## [v3.5.2] - 2024-07-09
 
 ### Changed
