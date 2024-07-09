@@ -88,21 +88,26 @@ ${logTrafficScript}
 ${logJSErrorsScript}
 
 window.addEventListener('load', () => {
-    const pageEnd = window.performance.mark('pageEnd');
-    const loadTime = Number.parseFloat(pageEnd.startTime / 1000).toFixed(2);
-    const page = window.location.href;
+	const observer = new PerformanceObserver((list) => {
+        list.getEntries().forEach((entry) => {
+            const loadTime = entry.domContentLoadedEventEnd;
+            const page = window.location.href;
 
-    if (loadTime > ${standardPageLoadTime}) {
-        const xhttp = new XMLHttpRequest();
-        xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
-        xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-        xhttp.send(JSON.stringify({
-            source: 'JavaScript',
-            message: `\${page} load time (\${loadTime} seconds) exceeded the standard page load time of (${standardPageLoadTime} seconds)`,
-            stack: null,
-            tag: "warning"
-        }));
-    }
+            if (loadTime > ${standardPageLoadTime}) {
+                const xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
+                xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+                xhttp.send(JSON.stringify({
+                    source: 'JavaScript',
+                    message: `\${page} load time (\${loadTime} seconds) exceeded the standard page load time of (${standardPageLoadTime} seconds)`,
+                    stack: null,
+                    tag: "warning"
+                }));
+            }
+        });
+    });
+
+    observer.observe({ type: "navigation", buffered: true });
 });
 JS;
 
