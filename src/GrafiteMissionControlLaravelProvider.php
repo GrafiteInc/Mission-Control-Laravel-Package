@@ -117,7 +117,7 @@ JS;
                 && ! is_null(config('mission-control.api_token'))
                 && ! is_null(config('mission-control.api_key'))
             ) {
-                return "<!-- MISSION CONTROL -->\n<script {$nonce}>" . $minifierJS->add($script)->minify() . '</script>';
+                return "<!-- MISSION CONTROL -->\n<script type=\"module\" {$nonce}>" . $minifierJS->add($script)->minify() . '</script>';
             }
 
             return '';
