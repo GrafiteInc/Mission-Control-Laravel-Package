@@ -84,8 +84,8 @@ JS;
             }
 
             $script = <<<JS
-${logTrafficScript}
-${logJSErrorsScript}
+{$logTrafficScript}
+{$logJSErrorsScript}
 
 window.addEventListener('load', () => {
 	const observer = new PerformanceObserver((list) => {
