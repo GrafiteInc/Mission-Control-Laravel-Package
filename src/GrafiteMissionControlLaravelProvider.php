@@ -5,12 +5,16 @@ namespace Grafite\MissionControlLaravel;
 use Exception;
 use MatthiasMullie\Minify\JS;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Queue\Events\JobProcessed;
+use Illuminate\Queue\Events\JobProcessing;
 use Grafite\MissionControlLaravel\Commands\Stats;
 use Grafite\MissionControlLaravel\Commands\Report;
 use Grafite\MissionControlLaravel\Commands\SSHLogger;
 use Grafite\MissionControlLaravel\Commands\VirusScan;
+use Grafite\MissionControlLaravel\Commands\QueueStats;
 use Grafite\MissionControlLaravel\Commands\Dependencies;
 
 class GrafiteMissionControlLaravelProvider extends ServiceProvider
@@ -22,6 +26,7 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
     {
         $this->commands([
             Stats::class,
+            QueueStats::class,
             Dependencies::class,
             Report::class,
             SSHLogger::class,

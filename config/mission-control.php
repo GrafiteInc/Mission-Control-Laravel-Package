@@ -9,6 +9,14 @@ return [
     ],
 
     /**
+     * The queues you want to monitor.
+     */
+    'queues' => [
+        'default' => 'database',
+        'sync' => 'sync',
+    ],
+
+    /**
      * The duration of seconds at which a DB query takes too long.
      */
     'query_threshold' => 5,
