@@ -39,7 +39,9 @@ class Firewall
                 $session->put('mission-control.ip', $ipAddress);
 
                 try {
-                    [$ip, $geo] = cache()->put('firewall-ip-scan-'.$ipAddress, $service->lookup($ipAddress), now()->addMinutes(60));
+                    [$ip, $geo] = cache()->remember('firewall-ip-scan-'.$ipAddress, now()->addMinutes(60), function () use ($service, $ipAddress) {
+                        return $service->lookup($ipAddress);
+                    });
 
                     if (! $session->get('mission-control.valid-ip') && $ip) {
                         // ip is whitelisted, or they are not in the blacklist
