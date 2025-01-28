@@ -7,9 +7,11 @@ use MatthiasMullie\Minify\JS;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Log\Events\MessageLogged;
+use Grafite\MissionControlLaravel\Commands\Stats;
 use Grafite\MissionControlLaravel\Commands\Report;
 use Grafite\MissionControlLaravel\Commands\SSHLogger;
 use Grafite\MissionControlLaravel\Commands\VirusScan;
+use Grafite\MissionControlLaravel\Commands\Dependencies;
 
 class GrafiteMissionControlLaravelProvider extends ServiceProvider
 {
@@ -19,6 +21,8 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
     public function register()
     {
         $this->commands([
+            Stats::class,
+            Dependencies::class,
             Report::class,
             SSHLogger::class,
             VirusScan::class,
@@ -176,6 +180,19 @@ JS;
                 }
             });
         }
+
+        Queue::after(function (JobProcessed $event) {
+            $queue = $event->job->getQueue();
+            $connection = $event->connectionName;
+
+            $cacheName = 'mission-control-processed-'.$connection.'-'.$queue.'-jobs';
+
+            cache()->put(
+                $cacheName,
+                cache($cacheName, 0) + 1,
+                now()->addDays(2)->endOfDay()
+            );
+        });
 
         return $this;
     }
