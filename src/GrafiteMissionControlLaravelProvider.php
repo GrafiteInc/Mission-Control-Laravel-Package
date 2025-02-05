@@ -191,8 +191,8 @@ JS;
             $connection = $event->connectionName;
 
             // because queue names can have prefixes
-            if (config('queue.'.$connection.'.prefix')) {
-                $queue = str_replace('/', '', str_replace(config('queue.'.$connection.'.prefix'), '', $queue));
+            if (! is_null(config('queue.connections.'.$connection.'.prefix'))) {
+                $queue = str_replace('/', '', str_replace(config('queue.connections.'.$connection.'.prefix'), '', $queue));
             }
 
             $cacheName = 'mission-control-processed-'.$connection.'-'.$queue.'-jobs';
