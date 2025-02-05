@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.7.1] - 2025-02-05
+
+### Added
+- CLI for notifications
+
+### Fixed
+- Issue with queue names
+
 ## [v3.7.0] - 2025-01-28
 
 ### Added
