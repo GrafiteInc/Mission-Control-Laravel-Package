@@ -190,6 +190,11 @@ JS;
             $queue = $event->job->getQueue();
             $connection = $event->connectionName;
 
+            // because queue names can have prefixes
+            if (config('queue.'.$connection.'.prefix')) {
+                $queue = str_replace('/', '', str_replace(config('queue.'.$connection.'.prefix'), '', $queue));
+            }
+
             $cacheName = 'mission-control-processed-'.$connection.'-'.$queue.'-jobs';
 
             cache()->put(
