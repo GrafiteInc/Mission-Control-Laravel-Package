@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.7.4] - 2025-02-05
+
+### Added
+- Better metric for initiated jobs
+
 ## [v3.7.3] - 2025-02-05
 
 ### Fixed
