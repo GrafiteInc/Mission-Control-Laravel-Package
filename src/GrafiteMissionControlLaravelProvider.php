@@ -186,6 +186,24 @@ JS;
             });
         }
 
+        Queue::before(function (JobProcessing $event) {
+            $queue = $event->job->getQueue();
+            $connection = $event->connectionName;
+
+            // because queue names can have prefixes
+            if (! is_null(config('queue.connections.'.$connection.'.prefix'))) {
+                $queue = str_replace('/', '', str_replace(config('queue.connections.'.$connection.'.prefix'), '', $queue));
+            }
+
+            $cacheName = 'mission-control-initiated-'.$connection.'-'.$queue.'-jobs';
+
+            cache()->put(
+                $cacheName,
+                cache($cacheName, 0) + 1,
+                now()->addDays(2)->endOfDay()
+            );
+        });
+
         Queue::after(function (JobProcessed $event) {
             $queue = $event->job->getQueue();
             $connection = $event->connectionName;
