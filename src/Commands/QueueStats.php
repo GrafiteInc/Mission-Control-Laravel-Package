@@ -59,7 +59,7 @@ class QueueStats extends Command
 
             $stats[$connection][$queue]['failed_jobs'] = DB::connection(config('queue.failed.database'))
                 ->table(config('queue.failed.table'))
-                ->where('queue', $queue)
+                ->where('queue', 'like', "%$queue%")
                 ->where('connection', $connection)
                 ->count();
 
