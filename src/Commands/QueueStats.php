@@ -50,6 +50,7 @@ class QueueStats extends Command
 
         foreach (config('mission-control.queues') as $queue => $connection) {
             $stats[$connection][$queue]['processed_jobs'] = 0;
+            $stats[$connection][$queue]['initiated_jobs'] = 0;
 
             $cacheNameProcessed = 'mission-control-processed-'.$connection.'-'.$queue.'-jobs';
             $cacheNameInitiated = 'mission-control-initiated-'.$connection.'-'.$queue.'-jobs';
