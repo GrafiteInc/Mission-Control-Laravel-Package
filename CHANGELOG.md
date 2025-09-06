@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.7.7] - 2025-09-06
+
+### Feature
+- enhanced feedback for JS issues
+- performance related page
+
 ## [v3.7.6] - 2025-05-09
 
 ### Chore
