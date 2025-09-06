@@ -80,6 +80,7 @@ JS;
             if ($logJSErrors) {
                 $logJSErrorsScript = <<<JS
 window.addEventListener('error', function (event) {
+    const mainHTMLsize = (new Blob([new XMLSerializer().serializeToString(document)], {type: 'text/html'})).size;
     const xhttp = new XMLHttpRequest();
     xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
     xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -87,6 +88,9 @@ window.addEventListener('error', function (event) {
         source: 'JavaScript',
         message: `\${event.message}: on line \${event.lineno} at column \${event.colno} within \${event.filename}`,
         stack: event.error.stack,
+        user_agent: navigator.userAgent,
+        connection: navigator.connection ? navigator.connection.effectiveType : 'unknown',
+        page_size: mainHTMLsize,
         tag: "error"
     }));
 
@@ -104,8 +108,17 @@ window.addEventListener('load', () => {
         list.getEntries().forEach((entry) => {
             const loadTime = Number.parseFloat(entry.domContentLoadedEventEnd / 1000).toFixed(2);
             const page = window.location.href;
+            const standardPageLoadTime = {$standardPageLoadTime};
+            const mainHTMLsize = (new Blob([new XMLSerializer().serializeToString(document)], {type: 'text/html'})).size;
 
-            if (loadTime > ${standardPageLoadTime}) {
+            // If the browser supports touch points,
+            // it is likely a mobile device and we
+            // should allow for longer load times.
+            if (navigator.maxTouchPoints > 1) {
+                standardPageLoadTime = standardPageLoadTime * 2.15;
+            }
+
+            if (loadTime > standardPageLoadTime) {
                 const xhttp = new XMLHttpRequest();
                 xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
                 xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
@@ -113,7 +126,10 @@ window.addEventListener('load', () => {
                     source: 'JavaScript',
                     message: `\${page} load time (\${loadTime} seconds) exceeded the standard page load time of (${standardPageLoadTime} seconds)`,
                     stack: null,
-                    tag: "warning"
+                    user_agent: navigator.userAgent,
+                    connection: navigator.connection ? navigator.connection.effectiveType : 'unknown',
+                    page_size: mainHTMLsize,
+                    tag: "info"
                 }));
             }
         });

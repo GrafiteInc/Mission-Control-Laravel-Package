@@ -23,18 +23,22 @@ class Firewall
             $service = app(Security::class);
             $threat = null;
 
+            // If they have already been validated as a good actor
+            // but their IP has changed, we need to re-validate them.
             if ($session->get('mission-control.validated-actor')) {
                 // If their IP has changed.
                 if ($session->get('mission-control.ip') !== $ipAddress) {
                     $session->forget('mission-control');
                 }
 
-                // is a malcious action
+                // Is a malcious action
                 if ($threat = $service->isMalicious($request)) {
                     $session->put('mission-control.bad-actor', true);
                 }
             }
 
+            // If they have NOT already been validated as a good actor
+            // we need to validate them.
             if (! $session->get('mission-control.validated-actor')) {
                 $session->put('mission-control.ip', $ipAddress);
 
