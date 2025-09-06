@@ -43,6 +43,9 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             __DIR__ . '/../config/mission-control.php' => base_path('config/mission-control.php'),
         ]);
 
+        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../views', 'support');
+
         $this->app['blade.compiler']->directive('missionControl', function ($nonce) {
             $nonce = $nonce ? ' nonce="' . $nonce . '"' : '';
 
