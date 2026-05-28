@@ -43,7 +43,7 @@ class SSHLogger extends Command
         fi
         EOL;
 
-        file_put_contents('../.bashrc', $snippet, FILE_APPEND);
+        file_put_contents(getenv('HOME') . '/.bashrc', $snippet, FILE_APPEND);
 
         $this->info('SSH Logger has been added to your .bashrc file.');
 
