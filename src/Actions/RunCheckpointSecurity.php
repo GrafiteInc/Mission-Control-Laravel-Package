@@ -83,7 +83,6 @@ class RunCheckpointSecurity
                 'failed'   => count($failed),
                 'warnings' => count($warnings),
             ],
-            'passed_checks'  => $passed,
             'failed_checks'  => $failed,
             'warning_checks' => $warnings,
         ];
