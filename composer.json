@@ -12,12 +12,14 @@
         "php": ">=8.2",
         "grafite/mission-control": "^3.3",
         "matthiasmullie/minify": "^1.3",
-        "illuminate/support": "^11.0|^12.0|^13.0"
+        "illuminate/support": "^12.0|^13.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0",
+        "phpunit/phpunit": "^11.0",
         "mockery/mockery": "^1.3",
-        "orchestra/testbench": "^9.0|^10.0|^11.0"
+        "orchestra/testbench": "^10.0|^11.0",
+        "andreapollastri/checkpoint": "^1.0",
+        "phauthentic/cognitive-code-analysis": "^1.11"
     },
     "bin": [
         "bin/report"

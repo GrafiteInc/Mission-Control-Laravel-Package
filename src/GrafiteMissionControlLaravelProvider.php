@@ -10,6 +10,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
+use Grafite\MissionControlLaravel\Commands\Code;
 use Grafite\MissionControlLaravel\Commands\Stats;
 use Grafite\MissionControlLaravel\Commands\Report;
 use Grafite\MissionControlLaravel\Commands\SSHLogger;
@@ -25,6 +26,7 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
     public function register()
     {
         $this->commands([
+            Code::class,
             Stats::class,
             QueueStats::class,
             Dependencies::class,
