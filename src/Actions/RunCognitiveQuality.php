@@ -51,6 +51,7 @@ class RunCognitiveQuality
             }
 
             $raw = file_get_contents($tmpFile);
+            \file_put_contents(base_path('storage/logs/phpcca-debug.log'), $raw);
             @unlink($tmpFile);
 
             $results = json_decode($raw, true);
@@ -91,50 +92,55 @@ class RunCognitiveQuality
         $highRiskThreshold = 15; // cognitive complexity score threshold for "high risk"
 
         // Extract class-level metrics from the results structure
-        if (isset($results['classes']) && is_array($results['classes'])) {
-            foreach ($results['classes'] as $classData) {
-                $className = $classData['name'] ?? $classData['class'] ?? 'Unknown';
-                $methods = $classData['methods'] ?? $classData['method_metrics'] ?? [];
+        foreach ($results as $className => $classData) {
+            $methods = $classData['methods'] ?? $classData['method_metrics'] ?? [];
 
-                $classMethods = [];
-                $classScore = 0;
+            $classMethods = [];
+            $classScore = 0;
 
-                if (is_array($methods)) {
-                    foreach ($methods as $methodData) {
-                        $methodName = $methodData['name'] ?? $methodData['method'] ?? 'unknown';
-                        $cogScore = $methodData['cognitiveComplexity'] ?? $methodData['cognitive_complexity'] ?? 0;
+            if (is_array($methods)) {
+                foreach ($methods as $methodData) {
+                    $methodName = $methodData['name'] ?? $methodData['method'] ?? 'unknown';
+                    $cogScore = $methodData['score'] ?? $methodData['score'] ?? 0;
 
-                        $classMethods[] = [
-                            'name'                  => $methodName,
-                            'cognitive_complexity' => $cogScore,
-                            'lines'                 => $methodData['lines'] ?? 0,
-                            'arguments'             => $methodData['arguments'] ?? 0,
-                            'variables'             => $methodData['variables'] ?? 0,
-                            'cyclomatic_complexity' => $methodData['cyclomaticComplexity'] ?? $methodData['cyclomatic_complexity'] ?? 0,
-                        ];
+                    $classMethods[] = [
+                        'name'                  => $methodName,
+                        'cognitive_complexity' => $cogScore,
+                        'lines'                 => $methodData['lineCount'] ?? 0,
+                        'arguments'             => $methodData['argCount'] ?? 0,
+                        'variables'             => $methodData['variableCount'] ?? 0,
+                    ];
 
-                        $classScore += $cogScore;
-                        $totalCognitiveScore += $cogScore;
-                        $totalMethods++;
+                    $classScore += $cogScore;
+                    $totalCognitiveScore += $cogScore;
+                    $totalMethods++;
 
-                        if ($cogScore > $highRiskThreshold) {
-                            $methodsAboveThreshold++;
-                        }
+                    if ($cogScore > $highRiskThreshold) {
+                        $methodsAboveThreshold++;
                     }
                 }
-
-                $classes[] = [
-                    'name'                 => $className,
-                    'cognitive_complexity' => $classScore,
-                    'method_count'         => count($classMethods),
-                    'methods'              => $classMethods,
-                ];
             }
+
+            $classes[] = [
+                'name'                 => $className,
+                'cognitive_complexity' => $classScore,
+                'method_count'         => count($classMethods),
+                'methods'              => $classMethods,
+            ];
         }
 
         // Determine overall status based on complexity metrics
         $avgMethodComplexity = $totalMethods > 0 ? $totalCognitiveScore / $totalMethods : 0;
         $status = $this->determineStatus($avgMethodComplexity, $methodsAboveThreshold, $totalMethods);
+
+        $worstClasses = collect($classes)->sortByDesc('cognitive_complexity')->take(5)->values()->all();
+
+        $worstClasses = collect($worstClasses)->map(function ($c) {
+            return [
+                'name' => $c['name'],
+                'score' => $c['cognitive_complexity'],
+            ];
+        })->all();
 
         return [
             'scan_type'  => 'quality',
@@ -148,7 +154,7 @@ class RunCognitiveQuality
                 'methods_above_threshold'  => $methodsAboveThreshold,
                 'high_risk_threshold'      => $highRiskThreshold,
             ],
-            'classes' => $classes,
+            'worst_classes' => $worstClasses,
         ];
     }
 
