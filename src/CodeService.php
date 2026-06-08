@@ -19,7 +19,7 @@ class CodeService extends BaseService
     {
         $this->token = $token;
         $this->key = $key;
-        $this->missionControlUrl = $this->missionControlDomain('status');
+        $this->missionControlUrl = $this->missionControlDomain('code/analysis');
     }
 
     /**
