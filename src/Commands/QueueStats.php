@@ -55,13 +55,8 @@ class QueueStats extends Command
             $cacheNameProcessed = 'mission-control-processed-'.$connection.'-'.$queue.'-jobs';
             $cacheNameInitiated = 'mission-control-initiated-'.$connection.'-'.$queue.'-jobs';
 
-            if (cache()->has($cacheNameProcessed)) {
-                $stats[$connection][$queue]['processed_jobs'] += cache($cacheNameProcessed);
-            }
-
-            if (cache()->has($cacheNameInitiated)) {
-                $stats[$connection][$queue]['initiated_jobs'] += cache($cacheNameInitiated);
-            }
+            $stats[$connection][$queue]['processed_jobs'] += cache()->pull($cacheNameProcessed, 0);
+            $stats[$connection][$queue]['initiated_jobs'] += cache()->pull($cacheNameInitiated, 0);
 
             $stats[$connection][$queue]['failed_jobs'] = DB::connection(config('queue.failed.database'))
                 ->table(config('queue.failed.table'))
@@ -71,8 +66,6 @@ class QueueStats extends Command
 
             $stats[$connection][$queue]['current_size'] = app('queue')->connection($connection)->size($queue);
 
-            cache()->forget($cacheNameProcessed);
-            cache()->forget($cacheNameInitiated);
         }
 
         $this->queueService->send($stats);

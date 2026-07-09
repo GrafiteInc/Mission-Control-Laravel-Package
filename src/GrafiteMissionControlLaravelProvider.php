@@ -48,8 +48,20 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../views', 'support');
 
-        $this->app['blade.compiler']->directive('missionControl', function ($nonce) {
+        $enabledEnvironments = config('mission-control.environments', ['production']);
+        $missionControlEnabled = app()->environment($enabledEnvironments)
+            && ! is_null(config('mission-control.api_token'))
+            && ! is_null(config('mission-control.api_key'));
+
+        app('blade.compiler')->directive('missionControl', function ($nonce) {
             $nonce = $nonce ? ' nonce="' . $nonce . '"' : '';
+
+            if (! (app()->environment(config('mission-control.environments', ['production']))
+                && ! is_null(config('mission-control.api_token'))
+                && ! is_null(config('mission-control.api_key')))
+            ) {
+                return '';
+            }
 
             $url = config('mission-control.url');
             $uuid = config('mission-control.api_uuid');
@@ -141,33 +153,39 @@ window.addEventListener('load', () => {
 });
 JS;
 
-            $minifierJS = new JS();
+            static $minifiedScriptCache = [];
 
-            if (app()->environment(config('mission-control.environments', ['production']))
-                && ! is_null(config('mission-control.api_token'))
-                && ! is_null(config('mission-control.api_key'))
-            ) {
-                return "<!-- MISSION CONTROL -->\n<script type=\"module\" {$nonce}>" . $minifierJS->add($script)->minify() . '</script>';
+            $cacheKey = md5(serialize([
+                $url,
+                $uuid,
+                $key,
+                $standardPageLoadTime,
+                $logJSErrors,
+                $logTraffic,
+            ]));
+
+            if (! isset($minifiedScriptCache[$cacheKey])) {
+                $minifierJS = new JS();
+                $minifierJS->add($script);
+                $minifiedScriptCache[$cacheKey] = $minifierJS->minify();
             }
 
-            return '';
+            return "<!-- MISSION CONTROL -->\n<script type=\"module\" {$nonce}>" . $minifiedScriptCache[$cacheKey] . '</script>';
         });
 
-        if (
-            app()->environment(config('mission-control.environments', ['production']))
-            && ! is_null(config('mission-control.api_token'))
-            && ! is_null(config('mission-control.api_key'))
-        ) {
+        if ($missionControlEnabled) {
             /**
              * General app error logging
              */
-            $this->app['log']->listen(function (MessageLogged $message) {
-                if (in_array($message->level, config('mission-control.levels', [
-                    'emergency',
-                    'alert',
-                    'critical',
-                    'error',
-                ]))) {
+            $levels = array_flip(config('mission-control.levels', [
+                'emergency',
+                'alert',
+                'critical',
+                'error',
+            ]));
+
+            app('log')->listen(function (MessageLogged $message) use ($levels) {
+                if (isset($levels[$message->level])) {
                     try {
                         if (! empty($message->context['exception'])) {
                             app(Issue::class)->exception($message->context['exception']);
@@ -205,43 +223,69 @@ JS;
                     app(Issue::class)->log($message, 'warning');
                 }
             });
+
+            $queueConnections = config('queue.connections', []);
+            $connectionPrefixes = [];
+            $supportsAtomicIncrement = method_exists(cache()->getStore(), 'increment');
+
+            foreach ($queueConnections as $name => $connection) {
+                $connectionPrefixes[$name] = $connection['prefix'] ?? null;
+            }
+
+            $monitoredQueues = config('mission-control.queues', []);
+
+            Queue::before(function (JobProcessing $event) use ($connectionPrefixes, $monitoredQueues, $supportsAtomicIncrement) {
+                $queue = $event->job->getQueue();
+                $connection = $event->connectionName;
+
+                // Queue names can include a configured prefix.
+                if (! is_null($connectionPrefixes[$connection] ?? null)) {
+                    $queue = str_replace('/', '', str_replace($connectionPrefixes[$connection], '', $queue));
+                }
+
+                if (($monitoredQueues[$queue] ?? null) !== $connection) {
+                    return;
+                }
+
+                $cacheName = 'mission-control-initiated-'.$connection.'-'.$queue.'-jobs';
+                $ttl = now()->addDays(2)->endOfDay();
+
+                if ($supportsAtomicIncrement) {
+                    cache()->add($cacheName, 0, $ttl);
+                    cache()->increment($cacheName);
+
+                    return;
+                }
+
+                cache()->put($cacheName, cache($cacheName, 0) + 1, $ttl);
+            });
+
+            Queue::after(function (JobProcessed $event) use ($connectionPrefixes, $monitoredQueues, $supportsAtomicIncrement) {
+                $queue = $event->job->getQueue();
+                $connection = $event->connectionName;
+
+                // Queue names can include a configured prefix.
+                if (! is_null($connectionPrefixes[$connection] ?? null)) {
+                    $queue = str_replace('/', '', str_replace($connectionPrefixes[$connection], '', $queue));
+                }
+
+                if (($monitoredQueues[$queue] ?? null) !== $connection) {
+                    return;
+                }
+
+                $cacheName = 'mission-control-processed-'.$connection.'-'.$queue.'-jobs';
+                $ttl = now()->addDays(2)->endOfDay();
+
+                if ($supportsAtomicIncrement) {
+                    cache()->add($cacheName, 0, $ttl);
+                    cache()->increment($cacheName);
+
+                    return;
+                }
+
+                cache()->put($cacheName, cache($cacheName, 0) + 1, $ttl);
+            });
         }
-
-        Queue::before(function (JobProcessing $event) {
-            $queue = $event->job->getQueue();
-            $connection = $event->connectionName;
-
-            // because queue names can have prefixes
-            if (! is_null(config('queue.connections.'.$connection.'.prefix'))) {
-                $queue = str_replace('/', '', str_replace(config('queue.connections.'.$connection.'.prefix'), '', $queue));
-            }
-
-            $cacheName = 'mission-control-initiated-'.$connection.'-'.$queue.'-jobs';
-
-            cache()->put(
-                $cacheName,
-                cache($cacheName, 0) + 1,
-                now()->addDays(2)->endOfDay()
-            );
-        });
-
-        Queue::after(function (JobProcessed $event) {
-            $queue = $event->job->getQueue();
-            $connection = $event->connectionName;
-
-            // because queue names can have prefixes
-            if (! is_null(config('queue.connections.'.$connection.'.prefix'))) {
-                $queue = str_replace('/', '', str_replace(config('queue.connections.'.$connection.'.prefix'), '', $queue));
-            }
-
-            $cacheName = 'mission-control-processed-'.$connection.'-'.$queue.'-jobs';
-
-            cache()->put(
-                $cacheName,
-                cache($cacheName, 0) + 1,
-                now()->addDays(2)->endOfDay()
-            );
-        });
 
         return $this;
     }

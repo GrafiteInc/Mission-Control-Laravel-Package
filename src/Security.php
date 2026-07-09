@@ -98,11 +98,13 @@ class Security
         }
 
         if (in_array($name, ['rfi']) && ! is_array($input)) {
-            if (! $result = preg_match($pattern, $this->applyExceptions($input, $request))) {
+            $cleanedInput = $this->applyExceptions($input, $request);
+
+            if (! preg_match($pattern, $cleanedInput)) {
                 return false;
             }
 
-            return $this->checkContent($result);
+            return $this->checkContent($cleanedInput);
         }
 
         if (in_array($name, ['php']) && ! is_array($input)) {
@@ -128,7 +130,19 @@ class Security
                 }
             }
 
-            if (in_array($name, ['rfi', 'php'])) {
+            if (in_array($name, ['rfi']) && ! is_array($value)) {
+                $cleanedValue = $this->applyExceptions($value, $request);
+
+                if (! preg_match($pattern, $cleanedValue)) {
+                    continue;
+                }
+
+                if (! $result = $this->checkContent($cleanedValue)) {
+                    continue;
+                }
+            }
+
+            if (in_array($name, ['php']) && ! is_array($value)) {
                 if (! $result = (stripos($value, $pattern) === 0)) {
                     continue;
                 }
@@ -156,7 +170,20 @@ class Security
 
     protected function checkContent($value)
     {
-        $contents = @file_get_contents($value);
+        if (! is_string($value) || ! filter_var($value, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 2,
+            ],
+            'https' => [
+                'timeout' => 2,
+            ],
+        ]);
+
+        $contents = @file_get_contents($value, false, $context, 0, 8192);
 
         if (!empty($contents)) {
             return (strstr($contents, '<?php') !== false);

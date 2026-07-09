@@ -34,7 +34,7 @@ return [
     /**
      * Log web traffic to Mission Control.
      */
-    'log_traffic' => true,
+    'log_traffic' => false,
 
     /**
      * The log levels you wish to send to Mission Control.
