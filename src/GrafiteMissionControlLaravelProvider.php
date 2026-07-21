@@ -120,9 +120,12 @@ JS;
 window.addEventListener('load', () => {
 	const observer = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
-            const loadTime = Number.parseFloat(entry.domContentLoadedEventEnd / 1000).toFixed(2);
+            // Time-to-interactive-ish: DOMContentLoaded relative to when the
+            // server response started, excluding redirects, DNS, TCP/TLS and
+            // TTFB so the value is comparable to Chrome DevTools.
+            const loadTime = Number.parseFloat((entry.domContentLoadedEventEnd - entry.responseStart) / 1000).toFixed(2);
             const page = window.location.href;
-            const standardPageLoadTime = {$standardPageLoadTime};
+            let standardPageLoadTime = {$standardPageLoadTime};
             const mainHTMLsize = (new Blob([new XMLSerializer().serializeToString(document)], {type: 'text/html'})).size;
 
             // If the browser supports touch points,
@@ -138,7 +141,7 @@ window.addEventListener('load', () => {
                 xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
                 xhttp.send(JSON.stringify({
                     source: 'JavaScript',
-                    message: `\${page} load time (\${loadTime} seconds) exceeded the standard page load time of (${standardPageLoadTime} seconds)`,
+                    message: `\${page} load time (\${loadTime} seconds) exceeded the standard page load time of (\${standardPageLoadTime} seconds)`,
                     stack: null,
                     user_agent: navigator.userAgent,
                     connection: navigator.connection ? navigator.connection.effectiveType : 'unknown',
