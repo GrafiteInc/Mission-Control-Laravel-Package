@@ -38,6 +38,12 @@ class Security
 
     public function isMalicious($request)
     {
+        // Nothing to scan on requests without input (typical GETs),
+        // so skip the pattern sweep entirely.
+        if (empty($request->input())) {
+            return false;
+        }
+
         $attackTypes = [
             'xss' => [
                 // Evil starting attributes
@@ -70,13 +76,15 @@ class Security
 
         $attackTypes = config('mission-control.attacks', $attackTypes);
 
+        $input = $request->input();
+
         foreach ($attackTypes as $name => $patterns) {
             foreach ($patterns as $pattern) {
-                if (! $match = $this->match($name, $pattern, $request->input(), $request)) {
+                if (! $match = $this->match($name, $pattern, $input, $request)) {
                     continue;
                 }
 
-                $threat = $this->recordThreat($name, $request->input());
+                $threat = $this->recordThreat($name, $input);
 
                 break;
             }
@@ -93,11 +101,15 @@ class Security
             return false;
         }
 
-        if (in_array($name, ['xss', 'lfi', 'sqli']) && ! is_array($input)) {
+        $isRegex = in_array($name, ['xss', 'lfi', 'sqli']);
+        $isRfi = ($name === 'rfi');
+        $isPhp = ($name === 'php');
+
+        if ($isRegex && ! is_array($input)) {
             return preg_match($pattern, $input);
         }
 
-        if (in_array($name, ['rfi']) && ! is_array($input)) {
+        if ($isRfi && ! is_array($input)) {
             $cleanedInput = $this->applyExceptions($input, $request);
 
             if (! preg_match($pattern, $cleanedInput)) {
@@ -107,7 +119,7 @@ class Security
             return $this->checkContent($cleanedInput);
         }
 
-        if (in_array($name, ['php']) && ! is_array($input)) {
+        if ($isPhp && ! is_array($input)) {
             return (stripos($input, $pattern) === 0);
         }
 
@@ -124,13 +136,13 @@ class Security
                 break;
             }
 
-            if (in_array($name, ['xss', 'lfi', 'sqli'])) {
+            if ($isRegex) {
                 if (! $result = preg_match($pattern, $value)) {
                     continue;
                 }
             }
 
-            if (in_array($name, ['rfi']) && ! is_array($value)) {
+            if ($isRfi) {
                 $cleanedValue = $this->applyExceptions($value, $request);
 
                 if (! preg_match($pattern, $cleanedValue)) {
@@ -142,7 +154,7 @@ class Security
                 }
             }
 
-            if (in_array($name, ['php']) && ! is_array($value)) {
+            if ($isPhp) {
                 if (! $result = (stripos($value, $pattern) === 0)) {
                     continue;
                 }

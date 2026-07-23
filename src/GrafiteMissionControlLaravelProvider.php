@@ -53,13 +53,10 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             && ! is_null(config('mission-control.api_token'))
             && ! is_null(config('mission-control.api_key'));
 
-        app('blade.compiler')->directive('missionControl', function ($nonce) {
+        app('blade.compiler')->directive('missionControl', function ($nonce) use ($missionControlEnabled) {
             $nonce = $nonce ? ' nonce="' . $nonce . '"' : '';
 
-            if (! (app()->environment(config('mission-control.environments', ['production']))
-                && ! is_null(config('mission-control.api_token'))
-                && ! is_null(config('mission-control.api_key')))
-            ) {
+            if (! $missionControlEnabled) {
                 return '';
             }
 
@@ -207,9 +204,10 @@ JS;
              * Handle the database query logging.
              */
             $standardQueryTime = config('mission-control.query_threshold', 5);
+            $standardQueryTimeMs = $standardQueryTime * 1000;
 
-            DB::listen(function ($sql) use ($standardQueryTime) {
-                if ($sql->time >= ($standardQueryTime * 1000)) {
+            DB::listen(function ($sql) use ($standardQueryTime, $standardQueryTimeMs) {
+                if ($sql->time >= $standardQueryTimeMs) {
                     $i = 0;
 
                     $statement = collect(explode(' ', $sql->sql))->map(function ($string) use ($sql, &$i) {
