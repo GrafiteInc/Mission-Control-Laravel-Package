@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.10.0] - 2026-07-23
+
+### Feature
+- performance improvements
+
+### Refactor
+- more accurate page load timing
+
 ## [v3.9.3] - 2026-07-09
 
 ### Feature
