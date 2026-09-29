@@ -8,4 +8,11 @@ class ConfigDefaultsTest extends \TestCase
 
         $this->assertFalse($defaults['log_traffic']);
     }
+
+    public function testEmailLoggingDefaultsToFalse()
+    {
+        $defaults = require __DIR__.'/../config/mission-control.php';
+
+        $this->assertFalse($defaults['log_emails']);
+    }
 }

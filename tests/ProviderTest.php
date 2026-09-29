@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\Cache;
@@ -125,6 +126,59 @@ class ProviderTest extends \TestCase
 
         $this->assertSame(5, (int) cache('mission-control-initiated-database-default-jobs', 0));
         $this->assertSame(5, (int) cache('mission-control-processed-database-default-jobs', 0));
+    }
+
+    public function testEmailListenerReportsSentMessages()
+    {
+        Config::set('mission-control.environments', ['testing']);
+        Config::set('mission-control.log_emails', true);
+
+        Http::fake();
+
+        $this->bootProvider();
+
+        app('events')->dispatch($this->fakeMessageSent());
+
+        Http::assertSent(function ($request) {
+            return str_ends_with($request->url(), '/api/emails')
+                && $request->data()['to'] === ['user@example.com']
+                && $request->data()['status'] === 'sent';
+        });
+    }
+
+    public function testEmailListenerIsNotRegisteredWhenDisabled()
+    {
+        Config::set('mission-control.environments', ['testing']);
+        Config::set('mission-control.log_emails', false);
+
+        Http::fake();
+
+        $this->bootProvider();
+
+        app('events')->dispatch($this->fakeMessageSent());
+
+        Http::assertNothingSent();
+    }
+
+    protected function fakeMessageSent(): MessageSent
+    {
+        $message = (new \Symfony\Component\Mime\Email())
+            ->from('noreply@example.com')
+            ->to('user@example.com')
+            ->subject('Ping')
+            ->html('<p>Hello</p>');
+
+        $sent = new \Illuminate\Mail\SentMessage(
+            new \Symfony\Component\Mailer\SentMessage(
+                $message,
+                new \Symfony\Component\Mailer\Envelope(
+                    new \Symfony\Component\Mime\Address('noreply@example.com'),
+                    [new \Symfony\Component\Mime\Address('user@example.com')]
+                )
+            )
+        );
+
+        return new MessageSent($sent, ['mailer' => 'smtp']);
     }
 
     protected function fakeQueueJob(string $queue): object

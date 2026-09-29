@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Log\Events\MessageLogged;
+use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Grafite\MissionControlLaravel\Commands\Code;
@@ -199,6 +200,19 @@ JS;
                     }
                 }
             });
+
+            /**
+             * Log the emails sent by the application.
+             */
+            if (config('mission-control.log_emails', false)) {
+                app('events')->listen(MessageSent::class, function (MessageSent $message) {
+                    try {
+                        app(Email::class)->record($message);
+                    } catch (Exception $exception) {
+                        return;
+                    }
+                });
+            }
 
             /**
              * Handle the database query logging.

@@ -37,6 +37,23 @@ return [
     'log_traffic' => false,
 
     /**
+     * Log the emails sent by your application to Mission Control.
+     */
+    'log_emails' => false,
+
+    /**
+     * Include the email bodies with the log. Mission Control encrypts
+     * subjects, bodies, headers and recipients at rest, and purges
+     * all email logs after 30 days.
+     */
+    'log_email_bodies' => true,
+
+    /**
+     * The maximum number of characters of each email body to send.
+     */
+    'email_body_limit' => 65536,
+
+    /**
      * The log levels you wish to send to Mission Control.
      */
     'levels' => [

@@ -82,6 +82,35 @@ use Grafite\MissionControlLaravel\Notify;
 app(Notify::class)->send('This is a title', 'info', 'This is a custom message');
 ```
 
+### Email Logging
+
+Mission Control can keep a record of every email your application sends. Turn it on in the config:
+
+```
+'log_emails' => true,
+```
+
+Once enabled, the package listens for Laravel's `MessageSent` event and forwards the recipients, subject, bodies, headers, mailable and mailer to Mission Control. Bodies are included by default and capped at `email_body_limit` characters, you can leave them out entirely with:
+
+```
+'log_email_bodies' => false,
+```
+
+Mission Control encrypts the subject, bodies, headers and full recipient list at rest, so only the `to` and `from` addresses are searchable. All email logs are purged after 30 days.
+
+Laravel only fires `MessageSent` for a successful delivery, so you can record a failed or queued email yourself:
+
+```
+use Grafite\MissionControlLaravel\Email;
+
+app(Email::class)->send([
+    'to' => ['user@example.com'],
+    'subject' => 'Welcome aboard',
+    'status' => 'failed',
+    'error' => 'Connection refused',
+]);
+```
+
 ### Mission Control Report
 
 The Report CRON job for Mission Control lets you send back to Mission Control data about the performance of your application.
