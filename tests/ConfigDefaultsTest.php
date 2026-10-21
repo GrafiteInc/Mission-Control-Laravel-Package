@@ -15,4 +15,11 @@ class ConfigDefaultsTest extends \TestCase
 
         $this->assertFalse($defaults['log_emails']);
     }
+
+    public function testFirewallSkipsHealthRouteByDefault()
+    {
+        $defaults = require __DIR__.'/../config/mission-control.php';
+
+        $this->assertContains('up', $defaults['firewall']['except']);
+    }
 }

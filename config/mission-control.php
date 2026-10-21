@@ -92,6 +92,21 @@ return [
     'url' => env('MISSION_CONTROL_URL', 'https://missioncontrolapp.io'),
 
     /**
+     * Requests the firewall should skip, such as load balancer health checks.
+     * Paths use Request::is() patterns. User agents are only trusted when the
+     * request comes from a private IP (ex. an AWS load balancer node), so
+     * Route 53 health checks should have their path added to except.
+     */
+    'firewall' => [
+        'except' => [
+            'up',
+        ],
+        'health_check_user_agents' => [
+            'ELB-HealthChecker',
+        ],
+    ],
+
+    /**
      * Control your attack monitoring
      */
     'attacks' => [

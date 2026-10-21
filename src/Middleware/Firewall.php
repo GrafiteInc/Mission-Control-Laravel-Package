@@ -3,6 +3,7 @@
 namespace Grafite\MissionControlLaravel\Middleware;
 
 use Closure;
+use Illuminate\Support\Str;
 use Grafite\MissionControlLaravel\Security;
 use Grafite\MissionControlLaravel\Events\AttackDetected;
 
@@ -18,6 +19,10 @@ class Firewall
     public function handle($request, Closure $next)
     {
         if (app()->environment(config('mission-control.environments', ['production']))) {
+            if ($this->shouldSkip($request)) {
+                return $next($request);
+            }
+
             $session = session();
             $ipAddress = $request->ip();
             $service = app(Security::class);
@@ -90,5 +95,51 @@ class Firewall
         }
 
         return $next($request);
+    }
+
+    /**
+     * Determine if the firewall should skip the request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function shouldSkip($request)
+    {
+        return $this->isExcludedPath($request) || $this->isHealthCheck($request);
+    }
+
+    /**
+     * Determine if the request path is excluded from the firewall.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function isExcludedPath($request)
+    {
+        $except = config('mission-control.firewall.except', ['up']);
+
+        return ! empty($except) && $request->is(...$except);
+    }
+
+    /**
+     * Determine if the request is a load balancer health check. The user agent
+     * is only trusted from a private IP so it can't be spoofed from outside.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return bool
+     */
+    protected function isHealthCheck($request)
+    {
+        $userAgents = config('mission-control.firewall.health_check_user_agents', ['ELB-HealthChecker']);
+        $userAgent = (string) $request->userAgent();
+
+        if (empty($userAgents) || ! Str::contains($userAgent, $userAgents)) {
+            return false;
+        }
+
+        $ipAddress = (string) $request->ip();
+
+        return filter_var($ipAddress, FILTER_VALIDATE_IP) !== false
+            && filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false;
     }
 }

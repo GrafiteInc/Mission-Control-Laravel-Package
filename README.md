@@ -141,6 +141,24 @@ FREQUENCY: Custom
 CUSTOM SCHEDULE: 0 1 * * *
 ```
 
+### Firewall and Health Checks
+
+The `Firewall` middleware skips load balancer health checks so they aren't treated as threats. By default it skips Laravel's `up` health route, and any request with an AWS `ELB-HealthChecker` user agent that comes from a private IP. You can adjust both in the config:
+
+```
+'firewall' => [
+    'except' => [
+        'up',
+        'health/*',
+    ],
+    'health_check_user_agents' => [
+        'ELB-HealthChecker',
+    ],
+],
+```
+
+Route 53 health checks come from public IPs, so add the path they check to `except`.
+
 ### Install ClamAV
 ```
 sudo apt-get install clamav clamav-daemon mailutils -y
