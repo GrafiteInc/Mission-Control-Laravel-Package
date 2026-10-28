@@ -53,6 +53,23 @@ class ProviderTest extends \TestCase
         $this->assertStringContainsString('/issue?key=', $compiled);
     }
 
+    public function testTrafficScriptIncludesBotDetection()
+    {
+        Config::set('mission-control.environments', ['testing']);
+        Config::set('mission-control.log_traffic', true);
+
+        $this->bootProvider();
+
+        $compiled = app('blade.compiler')->compileString("@missionControl('abc123')");
+
+        $this->assertStringContainsString('webdriver', $compiled);
+        $this->assertStringContainsString('isTrusted', $compiled);
+        $this->assertStringContainsString('"interacted"', $compiled);
+        $this->assertStringContainsString('"dwell_ms"', $compiled);
+        $this->assertStringContainsString('"signals"', $compiled);
+        $this->assertStringContainsString('keepalive', $compiled);
+    }
+
     public function testQueueListenersOnlyTrackConfiguredQueues()
     {
         Config::set('mission-control.environments', ['testing']);

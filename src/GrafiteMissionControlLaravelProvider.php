@@ -74,17 +74,105 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             if ($logTraffic) {
                 $logTrafficScript = <<<JS
 window.addEventListener('load', () => {
-    const xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "${url}/api/webhook/${uuid}/traffic?key=${key}", true);
-    xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-    xhttp.send(JSON.stringify({
-        "referrer": document.referrer,
-        "pathname": window.location.pathname,
-        "hash": window.location.hash,
-        "search": window.location.search,
-    }));
+    const nav = navigator;
+    const brands = nav.userAgentData && nav.userAgentData.brands ? nav.userAgentData.brands : [];
 
-    return false;
+    // Hard automation markers (Selenium, Puppeteer, Playwright,
+    // PhantomJS, Nightmare, chromedriver) mean this is not a
+    // human visit, so we skip logging the traffic entirely.
+    const automation = nav.webdriver === true
+        || ['_phantom', 'callPhantom', '__nightmare', 'domAutomation', 'domAutomationController'].some((key) => key in window)
+        || Object.keys(document).concat(Object.keys(window)).some((key) => key.includes('cdc_') || /^__(webdriver|selenium|driver)/.test(key))
+        || brands.some((brand) => /HeadlessChrome/i.test(brand.brand));
+
+    if (automation) {
+        return;
+    }
+
+    // Weak signals are sent along so Mission Control can score the visit.
+    const signals = [];
+
+    if (window.outerWidth === 0 || window.outerHeight === 0) {
+        signals.push('no_outer_dimensions');
+    }
+
+    if (!nav.languages || nav.languages.length === 0) {
+        signals.push('no_languages');
+    }
+
+    try {
+        const gl = document.createElement('canvas').getContext('webgl');
+        const info = gl && gl.getExtension('WEBGL_debug_renderer_info');
+
+        if (info && /SwiftShader|llvmpipe|Software/i.test(gl.getParameter(info.UNMASKED_RENDERER_WEBGL))) {
+            signals.push('software_renderer');
+        }
+
+        const lose = gl && gl.getExtension('WEBGL_lose_context');
+        lose && lose.loseContext();
+    } catch (e) {}
+
+    if (window.Notification && nav.permissions) {
+        nav.permissions.query({ name: 'notifications' }).then((status) => {
+            if (Notification.permission === 'denied' && status.state === 'prompt') {
+                signals.push('permission_mismatch');
+            }
+        }).catch(() => {});
+    }
+
+    // Only trusted input events count as interaction, scripted
+    // dispatchEvent calls are never trusted. Scroll is excluded
+    // since programmatic scrolling still produces trusted events.
+    const interactionEvents = ['pointermove', 'pointerdown', 'wheel', 'keydown', 'touchstart'];
+    let visibleAt = null;
+    let sent = false;
+
+    const onInteraction = (event) => {
+        if (event.isTrusted) {
+            send(true);
+        }
+    };
+
+    // Sent once: on the first interaction, or when the page is hidden.
+    // dwell_ms is the visible time before sending.
+    const send = (interacted) => {
+        if (sent || visibleAt === null) {
+            return;
+        }
+
+        sent = true;
+        interactionEvents.forEach((name) => window.removeEventListener(name, onInteraction, true));
+
+        fetch("${url}/api/webhook/${uuid}/traffic?key=${key}", {
+            method: 'POST',
+            keepalive: true,
+            headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+            body: JSON.stringify({
+                "referrer": document.referrer,
+                "pathname": window.location.pathname,
+                "hash": window.location.hash,
+                "search": window.location.search,
+                "interacted": interacted,
+                "dwell_ms": Math.round(performance.now() - visibleAt),
+                "signals": signals,
+            }),
+        }).catch(() => {});
+    };
+
+    // Prerendered and background tabs are not visits until they are seen.
+    const start = () => {
+        if (visibleAt !== null || document.visibilityState !== 'visible' || document.prerendering) {
+            return;
+        }
+
+        visibleAt = performance.now();
+        interactionEvents.forEach((name) => window.addEventListener(name, onInteraction, { capture: true, passive: true }));
+    };
+
+    document.addEventListener('visibilitychange', () => document.visibilityState === 'hidden' ? send(false) : start());
+    document.addEventListener('prerenderingchange', start);
+    window.addEventListener('pagehide', () => send(false));
+    start();
 });
 JS;
             }
