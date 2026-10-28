@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.11.0] - 2026-10-28
+
+### Feat(mission-control)
+- improve traffic logging with bot detection
+
+### Feat(firewall)
+- skip health checks in firewall
+
+### Feature
+- email logging
+
 ## [v3.10.0] - 2026-07-23
 
 ### Feature
