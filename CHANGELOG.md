@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.12.0] - 2026-10-30
+
+### Feat
+- add self-scheduling and firewall alias
+
 ## [v3.11.0] - 2026-10-28
 
 ### Feat(mission-control)
