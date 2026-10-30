@@ -16,6 +16,13 @@ class ConfigDefaultsTest extends \TestCase
         $this->assertFalse($defaults['log_emails']);
     }
 
+    public function testSchedulingDefaultsToFalse()
+    {
+        $defaults = require __DIR__.'/../config/mission-control.php';
+
+        $this->assertFalse($defaults['schedule']['enabled']);
+    }
+
     public function testFirewallSkipsHealthRouteByDefault()
     {
         $defaults = require __DIR__.'/../config/mission-control.php';

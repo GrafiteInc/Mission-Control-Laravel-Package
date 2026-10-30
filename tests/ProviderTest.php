@@ -66,6 +66,8 @@ class ProviderTest extends \TestCase
         $this->assertStringContainsString('isTrusted', $compiled);
         $this->assertStringContainsString('"interacted"', $compiled);
         $this->assertStringContainsString('"dwell_ms"', $compiled);
+        $this->assertStringContainsString('"response_ms"', $compiled);
+        $this->assertStringContainsString('"load_ms"', $compiled);
         $this->assertStringContainsString('"signals"', $compiled);
         $this->assertStringContainsString('keepalive', $compiled);
     }

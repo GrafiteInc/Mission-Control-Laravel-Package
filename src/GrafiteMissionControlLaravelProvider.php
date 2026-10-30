@@ -11,13 +11,16 @@ use Illuminate\Log\Events\MessageLogged;
 use Illuminate\Mail\Events\MessageSent;
 use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Console\Scheduling\Schedule;
 use Grafite\MissionControlLaravel\Commands\Code;
 use Grafite\MissionControlLaravel\Commands\Stats;
+use Grafite\MissionControlLaravel\Commands\Notify;
 use Grafite\MissionControlLaravel\Commands\Report;
 use Grafite\MissionControlLaravel\Commands\SSHLogger;
 use Grafite\MissionControlLaravel\Commands\VirusScan;
 use Grafite\MissionControlLaravel\Commands\QueueStats;
 use Grafite\MissionControlLaravel\Commands\Dependencies;
+use Grafite\MissionControlLaravel\Middleware\Firewall;
 
 class GrafiteMissionControlLaravelProvider extends ServiceProvider
 {
@@ -26,9 +29,12 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->mergeConfigFrom(__DIR__ . '/../config/mission-control.php', 'mission-control');
+
         $this->commands([
             Code::class,
             Stats::class,
+            Notify::class,
             QueueStats::class,
             Dependencies::class,
             Report::class,
@@ -48,6 +54,10 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
 
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../views', 'support');
+
+        if ($alias = config('mission-control.firewall.alias', 'firewall')) {
+            $this->app['router']->aliasMiddleware($alias, Firewall::class);
+        }
 
         $enabledEnvironments = config('mission-control.environments', ['production']);
         $missionControlEnabled = app()->environment($enabledEnvironments)
@@ -143,6 +153,11 @@ window.addEventListener('load', () => {
         sent = true;
         interactionEvents.forEach((name) => window.removeEventListener(name, onInteraction, true));
 
+        // Server response (TTFB minus DNS/TCP/redirects) and DOMContentLoaded
+        // relative to responseStart, both in milliseconds.
+        const timing = performance.getEntriesByType('navigation')[0];
+        const ms = (value) => timing && value > 0 ? Math.round(value) : null;
+
         fetch("${url}/api/webhook/${uuid}/traffic?key=${key}", {
             method: 'POST',
             keepalive: true,
@@ -154,6 +169,8 @@ window.addEventListener('load', () => {
                 "search": window.location.search,
                 "interacted": interacted,
                 "dwell_ms": Math.round(performance.now() - visibleAt),
+                "response_ms": ms(timing && timing.responseStart - timing.requestStart),
+                "load_ms": ms(timing && timing.domContentLoadedEventEnd - timing.responseStart),
                 "signals": signals,
             }),
         }).catch(() => {});
@@ -263,6 +280,15 @@ JS;
         });
 
         if ($missionControlEnabled) {
+            /**
+             * Schedule the Mission Control commands.
+             */
+            if (config('mission-control.schedule.enabled', false)) {
+                $this->callAfterResolving(Schedule::class, function (Schedule $schedule) {
+                    $this->schedule($schedule);
+                });
+            }
+
             /**
              * General app error logging
              */
@@ -391,5 +417,34 @@ JS;
         }
 
         return $this;
+    }
+
+    /**
+     * Schedule the Mission Control commands.
+     */
+    protected function schedule(Schedule $schedule)
+    {
+        // These commands need an action class in the app.
+        $requires = [
+            'stats' => 'App\\Actions\\AppStats',
+            'dependencies' => 'App\\Actions\\AppDependencies',
+        ];
+
+        $output = config('mission-control.schedule.output');
+
+        foreach (config('mission-control.schedule.commands', []) as $name => $cron) {
+            if (! $cron || (isset($requires[$name]) && ! class_exists($requires[$name]))) {
+                continue;
+            }
+
+            $event = $schedule->command("mission-control:{$name}")
+                ->cron($cron)
+                ->runInBackground()
+                ->withoutOverlapping();
+
+            if ($output) {
+                $event->appendOutputTo($output);
+            }
+        }
     }
 }

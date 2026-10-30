@@ -10,7 +10,7 @@ Grafite's Mission Control is an elegant Application Performance Management syste
 
 ## Requirements
 
-1. PHP 7.3+
+1. PHP 8.2+
 
 ### Composer
 
@@ -111,37 +111,73 @@ app(Email::class)->send([
 ]);
 ```
 
-### Mission Control Report
+### Scheduling
 
-The Report CRON job for Mission Control lets you send back to Mission Control data about the performance of your application.
-
-Then if you're using FORGE (default setup) you can add the following to the Scheduled Jobs:
+Mission Control can schedule its own commands, so you don't need to add them to your app's Console Kernel. Just make sure Laravel's scheduler is running, then turn it on in your environment:
 
 ```
-COMMAND: php /home/forge/{domain}/artisan mission-control:report
-USER: forge
-FREQUENCY: Custom
-CUSTOM SCHEDULE: */5 * * * *
+MISSION_CONTROL_SCHEDULE=true
 ```
 
-![Forge Screenshot](https://getmissioncontrol.io/img/forge_screenshot.png)
+Each command takes a cron expression, or `false` to skip it:
 
-If not simply add this to your `CRONTAB`:
+```
+'schedule' => [
+    'enabled' => env('MISSION_CONTROL_SCHEDULE', false),
+    'output' => storage_path('logs/scheduler.log'),
+    'commands' => [
+        'report' => '*/5 * * * *',
+        'queue' => '*/15 * * * *',
+        'stats' => '0 9 * * *',
+        'dependencies' => '0 * * * *',
+        'virus-scan' => false,
+        'code' => false,
+    ],
+],
+```
+
+The `stats` and `dependencies` commands only run when your app has an `App\Actions\AppStats` or `App\Actions\AppDependencies` class. The `virus-scan` command needs ClamAV (see below), and the `code` command needs the dev scanners, so both are off by default.
+
+> Upgrading? Remove the `mission-control:*` commands from your Console Kernel when you turn on scheduling, otherwise they'll run twice.
+
+If you'd rather not use Laravel's scheduler, add the commands to your `CRONTAB`:
 
 ```
 */5 * * * * php /{app-path}/artisan mission-control:report
 ```
 
-## For Security Measures
-
+### Install ClamAV
 ```
-COMMAND: php /home/forge/{domain}/artisan mission-control:virus-scan
-USER: forge
-FREQUENCY: Custom
-CUSTOM SCHEDULE: 0 1 * * *
+sudo apt-get install clamav clamav-daemon mailutils -y
+sudo service clamav-freshclam stop
+sudo freshclam
 ```
 
-### Firewall and Health Checks
+Then turn on the `virus-scan` command in your schedule:
+
+```
+'virus-scan' => '0 1 * * *',
+```
+
+### Firewall
+
+The package registers the `Firewall` middleware as `firewall`, so you can add it to your routes without touching your HTTP Kernel:
+
+```
+Route::middleware('firewall')->group(function () {
+    // ...
+});
+```
+
+You can rename the alias, or set it to `null` to skip it:
+
+```
+'firewall' => [
+    'alias' => 'firewall',
+],
+```
+
+#### Health Checks
 
 The `Firewall` middleware skips load balancer health checks so they aren't treated as threats. By default it skips Laravel's `up` health route, and any request with an AWS `ELB-HealthChecker` user agent that comes from a private IP. You can adjust both in the config:
 
@@ -158,13 +194,6 @@ The `Firewall` middleware skips load balancer health checks so they aren't treat
 ```
 
 Route 53 health checks come from public IPs, so add the path they check to `except`.
-
-### Install ClamAV
-```
-sudo apt-get install clamav clamav-daemon mailutils -y
-sudo service clamav-freshclam stop
-sudo freshclam
-```
 
 ### PHPUnit Settings
 

@@ -12,7 +12,14 @@ class VirusScan extends Command
      *
      * @var string
      */
-    protected $signature = 'mission-control:virus-scanner';
+    protected $signature = 'mission-control:virus-scan';
+
+    /**
+     * The console command name aliases.
+     *
+     * @var array
+     */
+    protected $aliases = ['mission-control:virus-scanner'];
 
     /**µ
      * The console command description.

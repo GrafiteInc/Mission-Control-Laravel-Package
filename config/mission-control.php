@@ -17,6 +17,26 @@ return [
     ],
 
     /**
+     * Let Mission Control schedule its own commands, so your app's
+     * Console Kernel doesn't have to. Each command takes a cron
+     * expression, or false to skip it. Stats and dependencies
+     * only run when your App\Actions\AppStats and
+     * App\Actions\AppDependencies classes exist.
+     */
+    'schedule' => [
+        'enabled' => env('MISSION_CONTROL_SCHEDULE', false),
+        'output' => storage_path('logs/scheduler.log'),
+        'commands' => [
+            'report' => '*/5 * * * *',
+            'queue' => '*/15 * * * *',
+            'stats' => '0 9 * * *',
+            'dependencies' => '0 * * * *',
+            'virus-scan' => false,
+            'code' => false,
+        ],
+    ],
+
+    /**
      * The duration of seconds at which a DB query takes too long.
      */
     'query_threshold' => 5,
@@ -98,6 +118,7 @@ return [
      * Route 53 health checks should have their path added to except.
      */
     'firewall' => [
+        'alias' => 'firewall',
         'except' => [
             'up',
         ],
