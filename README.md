@@ -111,6 +111,32 @@ app(Email::class)->send([
 ]);
 ```
 
+### Documents
+
+Project documents, such as an incident response plan or an application rebuild process, can be generated from within your codebase (by you or an AI agent) and pushed to Mission Control. List the available document types and the project's existing documents with:
+
+```
+php artisan mission-control:documents
+php artisan mission-control:documents --json
+```
+
+Push a document from a Markdown file, or pipe the content in:
+
+```
+php artisan mission-control:document "Incident Response Plan" --type=incident_response_plan --file=docs/mission-control/incident_response_plan.md
+cat rebuild.md | php artisan mission-control:document "Application Rebuild Process" --type=application_rebuild_process
+```
+
+Pushing is an upsert: a document with the same title and type is updated rather than duplicated, or you can pass `--uuid=` to update a specific document. Content is treated as Markdown, add `--format=html` to send HTML.
+
+You can also push a document in code. Unlike the logging helpers, this throws an exception when Mission Control rejects the document:
+
+```
+mission_control_document('Incident Response Plan', $markdown, 'incident_response_plan');
+```
+
+If your application uses [Laravel Boost](https://github.com/laravel/boost), the package ships a guideline and a `mission-control-documents` skill. Your agent learns the commands and how to generate each document type from your codebase, so you can ask it to "generate our Mission Control documents".
+
 ### Scheduling
 
 Mission Control can schedule its own commands, so you don't need to add them to your app's Console Kernel. Just make sure Laravel's scheduler is running, then turn it on in your environment:
