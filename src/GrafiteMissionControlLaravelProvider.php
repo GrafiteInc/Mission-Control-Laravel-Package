@@ -16,6 +16,8 @@ use Grafite\MissionControlLaravel\Commands\Code;
 use Grafite\MissionControlLaravel\Commands\Stats;
 use Grafite\MissionControlLaravel\Commands\Notify;
 use Grafite\MissionControlLaravel\Commands\Report;
+use Grafite\MissionControlLaravel\Commands\Document;
+use Grafite\MissionControlLaravel\Commands\Documents;
 use Grafite\MissionControlLaravel\Commands\SSHLogger;
 use Grafite\MissionControlLaravel\Commands\VirusScan;
 use Grafite\MissionControlLaravel\Commands\QueueStats;
@@ -38,6 +40,8 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             QueueStats::class,
             Dependencies::class,
             Report::class,
+            Document::class,
+            Documents::class,
             SSHLogger::class,
             VirusScan::class,
         ]);

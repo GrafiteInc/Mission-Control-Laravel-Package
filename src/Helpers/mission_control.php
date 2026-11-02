@@ -1,6 +1,7 @@
 <?php
 
 use Grafite\MissionControlLaravel\Email;
+use Grafite\MissionControlLaravel\Document;
 use Grafite\MissionControlLaravel\Issue;
 use Grafite\MissionControlLaravel\Notify;
 
@@ -22,5 +23,12 @@ if (! function_exists('mission_control_email')) {
     function mission_control_email(array $payload)
     {
         return app(Email::class)->send($payload);
+    }
+}
+
+if (! function_exists('mission_control_document')) {
+    function mission_control_document($title, $content, $type = null, array $options = [])
+    {
+        return app(Document::class)->push($title, $content, $type, $options);
     }
 }
