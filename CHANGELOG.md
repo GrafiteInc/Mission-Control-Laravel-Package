@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.13.0] - 2026-11-02
+
+### Test(documents)
+- add tests for document service and commands
+
+### Docs(documents)
+- document mission-control document commands
+
+### Feat(documents)
+- add document service and commands
+
 ## [v3.12.0] - 2026-10-30
 
 ### Feat
