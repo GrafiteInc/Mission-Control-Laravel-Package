@@ -165,7 +165,7 @@ class LongRunningMonitorTest extends \TestCase
 
         app('events')->dispatch(new ScheduledTaskStarting($task));
         $this->travel(301)->seconds();
-        app('events')->dispatch(new ScheduledTaskFailed($task, new Exception('boom')));
+        app('events')->dispatch(new ScheduledTaskFailed($task, new Exception('boom'), 301.0));
 
         Http::assertSentCount(1);
     }
@@ -212,7 +212,7 @@ class LongRunningMonitorTest extends \TestCase
     {
         app('events')->dispatch(new JobProcessing('database', $job));
         $this->travel($seconds)->seconds();
-        app('events')->dispatch(new JobAttempted('database', $job));
+        app('events')->dispatch(new JobAttempted('database', $job, null, $seconds * 1000));
     }
 
     protected function fakeJob(string $name, int $attempts = 1): object
