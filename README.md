@@ -82,6 +82,28 @@ use Grafite\MissionControlLaravel\Notify;
 app(Notify::class)->send('This is a title', 'info', 'This is a custom message');
 ```
 
+### Long Running Jobs & Scheduled Tasks
+
+Mission Control sends you a `warning` notification when a queued job attempt or a scheduled task runs longer than its threshold. This is on by default whenever Mission Control is enabled. Thresholds are in seconds:
+
+```
+'long_running' => [
+    'jobs' => [
+        'enabled' => env('MISSION_CONTROL_LONG_RUNNING_JOBS', true),
+        'threshold' => env('MISSION_CONTROL_LONG_RUNNING_JOB_THRESHOLD', 60),
+    ],
+    'tasks' => [
+        'enabled' => env('MISSION_CONTROL_LONG_RUNNING_TASKS', true),
+        'threshold' => env('MISSION_CONTROL_LONG_RUNNING_TASK_THRESHOLD', 300),
+    ],
+    'cooldown' => 15,
+],
+```
+
+The `cooldown` is the number of minutes before the same job class or scheduled task can notify again, so a job that is always slow won't flood your notifications. Set it to `0` to be notified every time.
+
+On Laravel 13.40 and newer, the package uses the framework's `Queue::whenJobRunsLongerThan()` and `Schedule::whenTaskRunsLongerThan()` hooks. On older versions it times jobs and tasks with the queue and scheduler events instead. Failed or released job attempts and failed scheduled tasks are measured too. Tasks run with `runInBackground()` report no runtime, so they are not measured.
+
 ### Email Logging
 
 Mission Control can keep a record of every email your application sends. Turn it on in the config:
