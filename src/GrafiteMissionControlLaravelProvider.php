@@ -33,6 +33,8 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/mission-control.php', 'mission-control');
 
+        $this->app->singleton(LongRunningMonitor::class);
+
         $this->commands([
             Code::class,
             Stats::class,
@@ -162,7 +164,7 @@ window.addEventListener('load', () => {
         const timing = performance.getEntriesByType('navigation')[0];
         const ms = (value) => timing && value > 0 ? Math.round(value) : null;
 
-        fetch("${url}/api/webhook/${uuid}/traffic?key=${key}", {
+        fetch("{$url}/api/webhook/{$uuid}/traffic?key={$key}", {
             method: 'POST',
             keepalive: true,
             headers: { 'Content-Type': 'application/json; charset=UTF-8' },
@@ -203,7 +205,7 @@ JS;
 window.addEventListener('error', function (event) {
     const mainHTMLsize = (new Blob([new XMLSerializer().serializeToString(document)], {type: 'text/html'})).size;
     const xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
+    xhttp.open("POST", "{$url}/api/webhook/{$uuid}/issue?key={$key}", true);
     xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
     xhttp.send(JSON.stringify({
         source: 'JavaScript',
@@ -244,11 +246,11 @@ window.addEventListener('load', () => {
 
             if (loadTime > standardPageLoadTime) {
                 const xhttp = new XMLHttpRequest();
-                xhttp.open("POST", "${url}/api/webhook/${uuid}/issue?key=${key}", true);
+                xhttp.open("POST", "{$url}/api/webhook/{$uuid}/issue?key={$key}", true);
                 xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
                 xhttp.send(JSON.stringify({
                     source: 'JavaScript',
-                    message: `\${page} load time (\${loadTime} seconds) exceeded the standard page load time of (\${standardPageLoadTime} seconds)`,
+                    message: `\{$page} load time (\{$loadTime} seconds) exceeded the standard page load time of (\{$standardPageLoadTime} seconds)`,
                     stack: null,
                     user_agent: navigator.userAgent,
                     connection: navigator.connection ? navigator.connection.effectiveType : 'unknown',
@@ -351,7 +353,7 @@ JS;
                         return $string;
                     })->implode(' ');
 
-                    $message = "The following statement ({$sql->time} milliseconds) exceeded the standard query time (${standardQueryTime} seconds): <br><br><span class=\"text-info\">${statement}</span>";
+                    $message = "The following statement ({$sql->time} milliseconds) exceeded the standard query time ({$standardQueryTime} seconds): {$statement}";
 
                     app(Issue::class)->log($message, 'warning');
                 }
@@ -418,6 +420,21 @@ JS;
 
                 cache()->put($cacheName, cache($cacheName, 0) + 1, $ttl);
             });
+
+            /**
+             * Handle long running queue jobs and scheduled tasks.
+             */
+            $monitor = app(LongRunningMonitor::class);
+
+            if (config('mission-control.long_running.jobs.enabled', true)) {
+                $monitor->watchJobs((float) config('mission-control.long_running.jobs.threshold', 60));
+            }
+
+            if (config('mission-control.long_running.tasks.enabled', true)) {
+                $this->callAfterResolving(Schedule::class, function (Schedule $schedule) use ($monitor) {
+                    $monitor->watchTasks($schedule, (float) config('mission-control.long_running.tasks.threshold', 300));
+                });
+            }
         }
 
         return $this;

@@ -42,6 +42,23 @@ return [
     'query_threshold' => 5,
 
     /**
+     * Notify Mission Control when queue jobs or scheduled tasks run too long.
+     * Thresholds are in seconds. The cooldown is the number of minutes before
+     * the same job or task can notify again (0 notifies every time).
+     */
+    'long_running' => [
+        'jobs' => [
+            'enabled' => env('MISSION_CONTROL_LONG_RUNNING_JOBS', true),
+            'threshold' => env('MISSION_CONTROL_LONG_RUNNING_JOB_THRESHOLD', 60),
+        ],
+        'tasks' => [
+            'enabled' => env('MISSION_CONTROL_LONG_RUNNING_TASKS', true),
+            'threshold' => env('MISSION_CONTROL_LONG_RUNNING_TASK_THRESHOLD', 300),
+        ],
+        'cooldown' => 15,
+    ],
+
+    /**
      * The duration of seconds at which a page load takes too long.
      */
     'page_load_threshold' => 2.0,
