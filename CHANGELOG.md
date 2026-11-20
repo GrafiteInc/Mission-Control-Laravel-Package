@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.14.0] - 2026-11-20
+
+### Docs
+- document long-running jobs and tasks
+
+### Test
+- cover long-running monitor defaults and behavior
+
+### Feature
+- add long-running job/task monitoring
+
 ## [v3.13.0] - 2026-11-02
 
 ### Test(documents)
