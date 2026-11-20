@@ -250,7 +250,7 @@ window.addEventListener('load', () => {
                 xhttp.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
                 xhttp.send(JSON.stringify({
                     source: 'JavaScript',
-                    message: `\{$page} load time (\{$loadTime} seconds) exceeded the standard page load time of (\{$standardPageLoadTime} seconds)`,
+                    message: `\${page} load time (\${loadTime} seconds) exceeded the standard page load time of (\${standardPageLoadTime} seconds)`,
                     stack: null,
                     user_agent: navigator.userAgent,
                     connection: navigator.connection ? navigator.connection.effectiveType : 'unknown',
