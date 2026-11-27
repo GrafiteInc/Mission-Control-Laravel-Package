@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 ----
 
+## [v3.15.0] - 2026-11-27
+
+### Feature
+- add reboot-required notification command
+
 ## [v3.14.2] - 2026-11-20
 
 ### Test
