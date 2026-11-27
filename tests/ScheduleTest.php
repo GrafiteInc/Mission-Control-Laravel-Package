@@ -56,6 +56,7 @@ class ScheduleTest extends \TestCase
 
         $this->assertSame('*/5 * * * *', $commands['mission-control:report']);
         $this->assertSame('*/15 * * * *', $commands['mission-control:queue']);
+        $this->assertSame('0 */4 * * *', $commands['mission-control:reboot-required']);
 
         // The app action classes don't exist, and the rest are off by default.
         $this->assertArrayNotHasKey('mission-control:stats', $commands);
@@ -104,5 +105,6 @@ class ScheduleTest extends \TestCase
         $this->assertArrayHasKey('mission-control:notify', $commands);
         $this->assertArrayHasKey('mission-control:virus-scan', $commands);
         $this->assertArrayHasKey('mission-control:virus-scanner', $commands);
+        $this->assertArrayHasKey('mission-control:reboot-required', $commands);
     }
 }

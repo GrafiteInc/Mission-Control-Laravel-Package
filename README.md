@@ -180,11 +180,14 @@ Each command takes a cron expression, or `false` to skip it:
         'dependencies' => '0 * * * *',
         'virus-scan' => false,
         'code' => false,
+        'reboot-required' => '0 */4 * * *',
     ],
 ],
 ```
 
 The `stats` and `dependencies` commands only run when your app has an `App\Actions\AppStats` or `App\Actions\AppDependencies` class. The `virus-scan` command needs ClamAV (see below), and the `code` command needs the dev scanners, so both are off by default.
+
+The `reboot-required` command checks Ubuntu's `/var/run/reboot-required` file every 4 hours. When the file has content, it sends a `security:reboot` notification that lists the packages from `/var/run/reboot-required.pkgs`. If the file doesn't exist, the command does nothing, so it's safe to leave on for servers that aren't running Ubuntu.
 
 > Upgrading? Remove the `mission-control:*` commands from your Console Kernel when you turn on scheduling, otherwise they'll run twice.
 

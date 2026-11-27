@@ -33,6 +33,7 @@ return [
             'dependencies' => '0 * * * *',
             'virus-scan' => false,
             'code' => false,
+            'reboot-required' => '0 */4 * * *',
         ],
     ],
 

@@ -21,6 +21,7 @@ use Grafite\MissionControlLaravel\Commands\Documents;
 use Grafite\MissionControlLaravel\Commands\SSHLogger;
 use Grafite\MissionControlLaravel\Commands\VirusScan;
 use Grafite\MissionControlLaravel\Commands\QueueStats;
+use Grafite\MissionControlLaravel\Commands\RebootRequired;
 use Grafite\MissionControlLaravel\Commands\Dependencies;
 use Grafite\MissionControlLaravel\Middleware\Firewall;
 
@@ -46,6 +47,7 @@ class GrafiteMissionControlLaravelProvider extends ServiceProvider
             Documents::class,
             SSHLogger::class,
             VirusScan::class,
+            RebootRequired::class,
         ]);
     }
 
